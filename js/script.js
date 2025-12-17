@@ -42,6 +42,13 @@ function updateCarousel(currentIndex) {
     if (searchbar) searchbar.style.display = (currentIndex === 0) ? 'flex' : 'none';
 }
 
+// Ensure asset paths are root-relative so they work on GitHub Pages
+function normalizeAssetPath(p) {
+    if (!p) return p;
+    // leave absolute URLs and data URIs alone
+    if (/^(https?:|data:|\/)/.test(p)) return p;
+    return '/' + p.replace(/^(\.\/|\/+)+/, '');
+}
 // Keep carousel position correct on resize
 window.addEventListener('resize', () => {
     const tiles = Array.from(document.querySelectorAll('.tile'));
@@ -93,11 +100,11 @@ function initLibraryHandlers() {
                     if (m && m[1] && m[1] !== 'none') coverUrl = m[1];
                 } catch (e) { /* ignore */ }
 
-                if (!coverUrl) coverUrl = `assets/images/games/${slug}.png`;
+                if (!coverUrl) coverUrl = normalizeAssetPath(`assets/images/games/${slug}.png`);
 
-                // save last-played info
+                // save last-played info (store normalized path)
                 try {
-                    localStorage.setItem('lastPlayed', JSON.stringify({ title: title, slug: slug, cover: coverUrl }));
+                    localStorage.setItem('lastPlayed', JSON.stringify({ title: title, slug: slug, cover: normalizeAssetPath(coverUrl) }));
                 } catch (e) { /* ignore storage errors */ }
 
                 // navigate to games/<slug>.html
@@ -117,9 +124,10 @@ function applyLastPlayed() {
         const banner = document.querySelector('.tiles .tile .right-side .banner');
         if (!banner) return;
 
-        // set cover if available
+        // set cover if available (normalize stored path)
         if (obj.cover) {
-            banner.style.background = `url('${obj.cover}') center center / cover no-repeat #1d1d1d`;
+            const coverPath = normalizeAssetPath(obj.cover);
+            banner.style.background = `url('${coverPath}') center center / cover no-repeat #1d1d1d`;
         }
 
         // set title inside banner
@@ -158,7 +166,7 @@ function applyLastPlayed() {
                 if (!v) return;
                 exts.forEach(ext => {
                     if (card.dataset.coverLoaded) return;
-                    const path = `assets/images/games/${v}.${ext}`;
+                    const path = normalizeAssetPath(`assets/images/games/${v}.${ext}`);
                     const img = new Image();
                     img.onload = () => {
                         if (!card.dataset.coverLoaded) {
