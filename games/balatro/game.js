@@ -20,8 +20,8 @@ Module.expectedDataFileDownloads++;
     } else {
       throw 'using preloaded data can only be done on a web page or in a web worker';
     }
-    var PACKAGE_NAME = 'http://media.githubusercontent.com/media/googoogoob/googoogoob.github.io/refs/heads/main/games/balatro/game.data';
-    var REMOTE_PACKAGE_BASE = 'http://media.githubusercontent.com/media/googoogoob/googoogoob.github.io/refs/heads/main/games/balatro/game.data';
+    var PACKAGE_NAME = 'https://media.githubusercontent.com/media/googoogoob/googoogoob.github.io/refs/heads/main/games/balatro/game.data';
+    var REMOTE_PACKAGE_BASE = 'https://media.githubusercontent.com/media/googoogoob/googoogoob.github.io/refs/heads/main/games/balatro/game.data';
     if (typeof Module['locateFilePackage'] === 'function' && !Module['locateFile']) {
       Module['locateFile'] = Module['locateFilePackage'];
       Module.printErr('warning: you defined Module.locateFilePackage, that has been renamed to Module.locateFile (using your locateFilePackage for now)');
