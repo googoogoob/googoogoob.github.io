@@ -688,11 +688,15 @@
 		// Get Files
       function manifestFiles()
       {
-        return [ "https://media.githubusercontent.com/media/googoogoob/googoogoob.github.io/refs/heads/main/games/undertale/runner.data",
-"runner.js",
-"runner.wasm",
-"audio-worklet.js",
-"https://media.githubusercontent.com/media/googoogoob/googoogoob.github.io/refs/heads/main/games/undertale/game.unx" ].join( ";");
+      // Replace these CDN URLs with the public URLs where you upload the binaries
+      var CDN_RUNNER_DATA = "https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io/games/undertale/runner.data";
+      var CDN_GAME_UNX = "https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io/games/undertale/game.unx";
+
+      return [ CDN_RUNNER_DATA,
+    "runner.js",
+    "runner.wasm",
+    "audio-worklet.js",
+    CDN_GAME_UNX ].join(";");
       }
 
 		// Verify Files
