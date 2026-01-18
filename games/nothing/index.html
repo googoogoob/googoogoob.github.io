@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZRPZ3P6WM2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZRPZ3P6WM2');
+</script>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | Nothing</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <title>Goob 360: Nothing</title>
+    <link rel="shortcut icon" href="../gfavicon.png">
     <link rel="stylesheet" href="TemplateData/style.css">
     <link rel="manifest" href="manifest.webmanifest">
   </head>
@@ -59,7 +67,7 @@
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/Nothing.loader.js";
       var config = {
-        dataUrl: buildUrl + "/Nothing.data",
+        dataUrl: "https://raw.githubusercontent.com/googoogoob/NothingWebPort/refs/heads/main/Build/Nothing.data",
         frameworkUrl: buildUrl + "/Nothing.framework.js",
         codeUrl: buildUrl + "/Nothing.wasm",
         streamingAssetsUrl: "StreamingAssets",
