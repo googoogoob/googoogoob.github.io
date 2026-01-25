@@ -242,35 +242,7 @@ function initPowerOffHandler() {
     powerTile.addEventListener('click', (e) => { powerOff(); });
 }
 
-// Online counter functionality
-function updateOnlineCount() {
-    const onlineElement = document.getElementById('onlineNumber');
-    if (!onlineElement) return;
 
-    // Option 1: Use a free counter service (CountAPI)
-    // This provides total visits, not real-time online users
-    fetch('https://api.countapi.xyz/hit/googoogoob.github.io/visits')
-        .then(response => response.json())
-        .then(data => {
-            // For demo: show last 3 digits + random for "online" effect
-            const baseCount = data.value % 1000;
-            const onlineCount = baseCount + Math.floor(Math.random() * 50);
-            onlineElement.textContent = onlineCount;
-        })
-        .catch(() => {
-            // Fallback: simulated count
-            const simulatedCount = Math.floor(Math.random() * 50) + 1;
-            onlineElement.textContent = simulatedCount;
-        });
-
-    // Update every 30 seconds
-    setTimeout(updateOnlineCount, 30000);
-}
-
-// Initialize online counter when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    updateOnlineCount();
-});
 
 // Ensure the function is available on the global `window` for inline handlers
 try { window.powerOff = powerOff; window.initPowerOffHandler = initPowerOffHandler; } catch (e) {}
