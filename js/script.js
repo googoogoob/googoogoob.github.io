@@ -49,6 +49,33 @@ function normalizeAssetPath(p) {
     if (/^(https?:|data:|\/)/.test(p)) return p;
     return '/' + p.replace(/^(\.\/|\/+)+/, '');
 }
+// Create a centered overlay showing the cover image and spinner, then navigate
+function createLaunchOverlay(coverUrl, delayMs, href) {
+    const normalized = normalizeAssetPath(coverUrl || '');
+    const overlay = document.createElement('div');
+    overlay.className = 'launch-overlay';
+
+    const img = document.createElement('img');
+    img.className = 'launch-image';
+    img.alt = '';
+    img.src = normalized || '';
+    overlay.appendChild(img);
+
+    const spinnerWrap = document.createElement('div');
+    spinnerWrap.className = 'launch-spinner';
+    spinnerWrap.innerHTML = '<div class="spinner" aria-hidden="true"></div>';
+    overlay.appendChild(spinnerWrap);
+
+    document.body.appendChild(overlay);
+
+    // allow a brief fade/scale in before navigating
+    window.requestAnimationFrame(() => overlay.classList.add('visible'));
+
+    setTimeout(() => {
+        // navigate
+        try { window.location.href = href; } catch (e) { window.location = href; }
+    }, delayMs || 700);
+}
 // Keep carousel position correct on resize
 window.addEventListener('resize', () => {
     const tiles = Array.from(document.querySelectorAll('.tile'));
@@ -88,7 +115,7 @@ function initLibraryHandlers() {
     const cards = libraryOverlay.querySelectorAll('.game-card');
     const slugify = (s) => s.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
     cards.forEach(card => {
-        card.addEventListener('click', () => {
+        card.addEventListener('click', (e) => {
             const title = card.dataset.title || '';
             const slug = slugify(title);
                 // determine cover URL from computed style if present
@@ -107,8 +134,11 @@ function initLibraryHandlers() {
                     localStorage.setItem('lastPlayed', JSON.stringify({ title: title, slug: slug, cover: normalizeAssetPath(coverUrl) }));
                 } catch (e) { /* ignore storage errors */ }
 
-                // navigate to games/<slug>.html
-                window.location.href = `games/${slug}.html`;
+                // Show centered overlay with the cover image + spinner, then navigate
+                if (card.dataset.launching !== '1') {
+                    card.dataset.launching = '1';
+                    createLaunchOverlay(coverUrl, 700, `games/${slug}.html`);
+                }
         });
     });
 }
@@ -138,12 +168,32 @@ function applyLastPlayed() {
         }
         h.textContent = obj.title || '';
 
-        // make banner clickable to return to last-played game
+        // make banner clickable to return to last-played game with an animated launch
         banner.classList.add('clickable');
         banner.setAttribute('role', 'button');
         banner.setAttribute('tabindex', '0');
-        banner.onclick = () => { window.location.href = `games/${obj.slug || obj.title.toLowerCase().replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'-')}.html`; };
-        banner.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') banner.onclick(); });
+        const targetSlug = (obj.slug || obj.title.toLowerCase().replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'-'));
+        const navigateToGame = () => { window.location.href = `games/${targetSlug}.html`; };
+
+        const launchAndNavigate = (e) => {
+            // prevent double-activation
+            if (banner.dataset.launching === '1') return;
+            banner.dataset.launching = '1';
+            // compute cover url (use stored or from computed style)
+            let coverUrl = (obj.cover) ? normalizeAssetPath(obj.cover) : null;
+            try {
+                if (!coverUrl) {
+                    const cs = window.getComputedStyle(banner);
+                    const bg = cs.backgroundImage || '';
+                    const m = bg.match(/url\(["']?(.*?)["']?\)/);
+                    if (m && m[1] && m[1] !== 'none') coverUrl = m[1];
+                }
+            } catch (e) { /* ignore */ }
+            createLaunchOverlay(coverUrl, 800, `games/${targetSlug}.html`);
+        };
+
+        banner.addEventListener('click', launchAndNavigate);
+        banner.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') launchAndNavigate(); });
     } catch (e) {
         // ignore
     }
