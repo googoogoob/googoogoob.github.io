@@ -201,6 +201,15 @@ h1.selected {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Ingame font */
+@font-face {
+    font-family: 'Ingame';
+    src: url('/assets/fonts/ingame.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 /* Fullscreen centered overlay used for launching */
 .launch-overlay {
     position: fixed;
@@ -208,21 +217,27 @@ h1.selected {
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: none;
+    pointer-events: auto;
     z-index: 500;
     opacity: 0;
     transition: opacity 160ms ease-in;
+    overflow: hidden;
 }
 .launch-overlay.visible { opacity: 1; }
 .launch-overlay .launch-image {
-    width: 75vw;
-    height: 75vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    border-radius: 0.6vw;
-    box-shadow: 0 30px 90px rgba(0,0,0,0.8);
+    object-position: center center;
+    border-radius: 0;
+    box-shadow: none;
     /* start slightly smaller and scale to full size when overlay becomes visible */
-    transform: scale(0.68);
+    transform: scale(0.88);
     opacity: 0.0;
+    transform-origin: center center;
     transition: transform 340ms cubic-bezier(.2,.9,.2,1), opacity 180ms ease-in;
 }
 .launch-overlay.visible .launch-image {
@@ -231,6 +246,62 @@ h1.selected {
 }
 .launch-overlay .launch-spinner { position: absolute; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.12); }
 .launch-overlay .launch-spinner .spinner { width: 4.2vw; height: 4.2vw; border-radius: 50%; border: 0.5vw solid rgba(255,255,255,0.12); border-top-color: rgba(255,255,255,0.95); animation: spin 0.9s linear infinite; box-shadow: 0 6px 18px rgba(0,0,0,0.45); }
+
+.launch-overlay .launch-iframe { width: 100vw; height: 100vh; border: none; border-radius: 0; box-shadow: none; background: black; z-index: 500; }
+.launch-overlay .launch-spinner { position: absolute; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.12); z-index: 900; }
+.launch-overlay .launch-spinner .spinner { width: 4.2vw; height: 4.2vw; border-radius: 50%; border: 0.5vw solid rgba(255,255,255,0.12); border-top-color: rgba(255,255,255,0.95); animation: spin 0.9s linear infinite; box-shadow: 0 6px 18px rgba(0,0,0,0.45); }
+/* removed .launch-close-btn per UX request (Shift+Tab menu used instead) */
+
+/* In-game menu styles (Shift+Tab) */
+.in-game-menu { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 910; }
+.in-game-menu {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 910;
+}
+/* dim the game behind the menu */
+.in-game-menu::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 905;
+    opacity: 0;
+    transition: opacity 160ms ease-in;
+}
+.in-game-menu.show::before { opacity: 1; }
+.in-game-menu .menu-box {
+    pointer-events: auto;
+    background: rgba(12,12,12,0.96);
+    padding: 1.2vw;
+    border-radius: 0.8vw;
+    display:flex;
+    gap: 0.8vw;
+    align-items:center;
+    z-index: 910;
+    font-family: Ingame, sans-serif;
+    /* position bottom-left */
+    position: absolute;
+    left: 2.5vw;
+    bottom: 2.5vh;
+}
+.in-game-menu .menu-btn {
+    background: #1a1a1a;
+    color: #fff;
+    border: 0.12vw solid rgba(255,255,255,0.06);
+    padding: 0.8vw 1.2vw;
+    font-size: 1.2vw;
+    border-radius: 0.6vw;
+    cursor: pointer;
+    font-family: Ingame, sans-serif;
+}
+.in-game-menu .menu-btn:hover { background: #262626; }
+
+/* Exit transition: fade/scale out the iframe before removing overlay */
+.launch-overlay.exiting .launch-iframe {
+    transition: transform 380ms ease, opacity 320ms ease;
+    transform: scale(0.96);
+    opacity: 0;
+}
+.launch-overlay.exiting .launch-image { transition: opacity 260ms ease; opacity: 0; }
 
 .rectangle {
     display: flex;

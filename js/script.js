@@ -55,26 +55,161 @@ function createLaunchOverlay(coverUrl, delayMs, href) {
     const overlay = document.createElement('div');
     overlay.className = 'launch-overlay';
 
+    // cover image shown while iframe loads
     const img = document.createElement('img');
     img.className = 'launch-image';
     img.alt = '';
     img.src = normalized || '';
     overlay.appendChild(img);
 
+    // spinner on top of cover
     const spinnerWrap = document.createElement('div');
     spinnerWrap.className = 'launch-spinner';
     spinnerWrap.innerHTML = '<div class="spinner" aria-hidden="true"></div>';
     overlay.appendChild(spinnerWrap);
 
+    // iframe (hidden until loaded)
+    const iframe = document.createElement('iframe');
+    iframe.className = 'launch-iframe';
+    iframe.src = href;
+    iframe.setAttribute('allowfullscreen','');
+    iframe.style.border = 'none';
+    iframe.style.opacity = '0';
+    overlay.appendChild(iframe);
+
+    // in-game menu (opens with Shift+Tab) — hidden by default
+    const menu = document.createElement('div');
+    menu.className = 'in-game-menu';
+    menu.innerHTML = `
+        <div class="menu-box" role="dialog" aria-modal="true">
+            <button class="menu-btn continue">Continue</button>
+            <button class="menu-btn exit">Exit to Menu</button>
+        </div>
+    `;
+    menu.style.display = 'none';
+    overlay.appendChild(menu);
+
     document.body.appendChild(overlay);
 
-    // allow a brief fade/scale in before navigating
+    // show overlay and animate cover → final size
     window.requestAnimationFrame(() => overlay.classList.add('visible'));
 
+    // ensure spinner remains at least this long (ms) so it doesn't flash away
+    const minSpinnerMs = 900;
+    const shownAt = Date.now();
+
+    // when iframe loads, fade it in and remove spinner/cover after min duration
+    iframe.addEventListener('load', () => {
+        const elapsed = Date.now() - shownAt;
+        const removeNow = () => {
+            iframe.style.transition = 'opacity 220ms ease-in';
+            iframe.style.opacity = '1';
+            // fade out spinner and cover
+            if (spinnerWrap && spinnerWrap.parentNode) spinnerWrap.parentNode.removeChild(spinnerWrap);
+            if (img && img.parentNode) img.parentNode.removeChild(img);
+            // allow interactions with iframe
+            overlay.style.pointerEvents = 'auto';
+        };
+        if (elapsed >= minSpinnerMs) removeNow(); else setTimeout(removeNow, minSpinnerMs - elapsed);
+    });
+
+    // fallback: if iframe doesn't fire load within a longer timeout, still show it
     setTimeout(() => {
-        // navigate
-        try { window.location.href = href; } catch (e) { window.location = href; }
-    }, delayMs || 700);
+        if (iframe && iframe.style.opacity === '0') {
+            try { iframe.style.opacity = '1'; } catch (e) {}
+            if (spinnerWrap && spinnerWrap.parentNode) spinnerWrap.parentNode.removeChild(spinnerWrap);
+            if (img && img.parentNode) img.parentNode.removeChild(img);
+            overlay.style.pointerEvents = 'auto';
+        }
+    }, Math.max(delayMs || 1500, 3000));
+
+    // functions to show/hide menu (used from parent or injected iframe listener)
+    const showMenu = () => {
+        if (menu.style.display === 'none') {
+            menu.style.display = 'flex';
+            menu.classList.add('show');
+            const btn = menu.querySelector('.menu-btn.continue');
+            try { btn.focus(); } catch (e) {}
+        }
+    };
+    const hideMenu = () => {
+        if (menu.style.display !== 'none') {
+            menu.style.display = 'none';
+            menu.classList.remove('show');
+        }
+    };
+
+    // keyboard/menu handling for the overlay (Shift+Tab to open menu)
+    const keyHandler = (e) => {
+        // Shift+Tab opens the menu
+        if (e.key === 'Tab' && e.shiftKey) {
+            e.preventDefault();
+            showMenu();
+            return;
+        }
+        // Esc closes the menu if open
+        if (e.key === 'Escape' && menu.style.display !== 'none') {
+            hideMenu();
+        }
+    };
+    document.addEventListener('keydown', keyHandler);
+
+    // menu button actions
+    const btnContinue = menu.querySelector('.menu-btn.continue');
+    const btnExit = menu.querySelector('.menu-btn.exit');
+    btnContinue.addEventListener('click', () => { hideMenu(); });
+    btnExit.addEventListener('click', () => {
+        // play exit animation then remove overlay and return to home
+        overlay.classList.add('exiting');
+        // prevent further menu interactions
+        try { overlay.style.pointerEvents = 'none'; } catch (e) {}
+        try {
+            // trigger iframe fade/scale (iframe is in scope)
+            iframe.style.transition = 'opacity 320ms ease, transform 380ms ease';
+            iframe.style.transform = 'scale(0.96)';
+            iframe.style.opacity = '0';
+        } catch (e) {}
+        const cleanup = () => {
+            if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            try { document.removeEventListener('keydown', keyHandler); } catch (e) {}
+            try { updateCarousel(0); } catch (e) {}
+        };
+        // wait for animation to finish then cleanup
+        setTimeout(cleanup, 480);
+    });
+
+    // when overlay is removed by other means, ensure we remove the key handler
+    // try to attach a key listener inside the iframe (allows games to trigger Shift+Tab)
+    let iframeKeyHandler = null;
+    const attachIframeKeyListener = () => {
+        try {
+            iframeKeyHandler = (e) => {
+                if (e.key === 'Tab' && e.shiftKey) {
+                    e.preventDefault();
+                    showMenu();
+                }
+            };
+            // attach to iframe's window and document if same-origin
+            if (iframe && iframe.contentWindow) iframe.contentWindow.addEventListener('keydown', iframeKeyHandler);
+            if (iframe && iframe.contentDocument && iframe.contentDocument.defaultView) iframe.contentDocument.defaultView.addEventListener('keydown', iframeKeyHandler);
+        } catch (e) {
+            // cross-origin iframe — cannot attach; fallback requires cooperation from game via postMessage
+            iframeKeyHandler = null;
+        }
+    };
+    // attach when iframe is ready
+    iframe.addEventListener('load', () => attachIframeKeyListener());
+
+    const observer = new MutationObserver(() => {
+        if (!document.body.contains(overlay)) {
+            try { document.removeEventListener('keydown', keyHandler); } catch (e) {}
+            try {
+                if (iframeKeyHandler && iframe && iframe.contentWindow) iframe.contentWindow.removeEventListener('keydown', iframeKeyHandler);
+            } catch (e) {}
+            observer.disconnect();
+        }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
 }
 // Keep carousel position correct on resize
 window.addEventListener('resize', () => {
