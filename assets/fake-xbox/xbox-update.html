@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Goob 360: Updating</title>
+  <link rel="shortcut icon" href="../images/favicon.png">
+  <link rel="stylesheet" href="./xbox-update.css">
+</head>
+<body>
+  <div class="page">
+    <header class="info">
+      <div>Client version: <span id="client-version">—</span></div>
+      <div>Server version: <span id="server-version">—</span></div>
+      <button id="check-btn">Check for update</button>
+    </header>
+
+    <main>
+      <p class="hint">If versions mismatch the site will display a fake mac-style boot update.</p>
+    </main>
+
+    <div id="overlay" class="overlay hidden" aria-hidden="true">
+      <div class="mac-screen">
+        <img id="boot-logo" src="/assets/images/favicon.png" alt="site logo">
+        <div class="status" id="status">Preparing update…</div>
+        <div class="progress" id="progress-wrap">
+          <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./xbox-update.js"></script>
+</body>
+</html>

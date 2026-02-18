@@ -1,0 +1,19 @@
+
+:root{--bg:#000;--muted:#bfc6c8}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#000;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.page{width:900px;max-width:96%;}
+.info{display:flex;gap:16px;align-items:center;margin-bottom:18px}
+.info div{font-size:15px;color:var(--muted)}
+button{background:#222;border:1px solid #333;color:#fff;padding:8px 12px;border-radius:6px;cursor:pointer}
+.hint{color:var(--muted)}
+.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;z-index:1000}
+.overlay.hidden{display:none}
+.mac-screen{width:720px;max-width:94%;display:flex;flex-direction:column;align-items:center;gap:28px;padding:60px 20px}
+.mac-screen img#boot-logo{width:96px;height:96px;object-fit:contain;}
+.status{font-size:18px;color:#fff;margin-top:8px;opacity:0.95}
+.progress{width:60%;height:6px;background:rgba(255,255,255,0.12);border-radius:4px;overflow:hidden}
+.progress-bar{height:100%;background:#fff;width:0%;transition:width 300ms linear}
+
+@media (max-width:520px){.mac-screen{padding:32px}.progress{width:80%}.mac-screen img#boot-logo{width:72px;height:72px}}

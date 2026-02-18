@@ -86,6 +86,41 @@
             });
         </script>
         <script>
+        // Automatic version check on load: if mismatch, redirect to fake update page.
+        document.addEventListener('DOMContentLoaded', function(){
+            const CLIENT_KEY = 'fake_xbox_client_version';
+            const DEFAULT_CLIENT = '1.0.0';
+
+            async function checkVersion(){
+                try{
+                    const r = await fetch('/version.json', {cache: 'no-store'});
+                    if(!r.ok) return;
+                    const j = await r.json();
+                    const server = j.version;
+                    const client = localStorage.getItem(CLIENT_KEY) || DEFAULT_CLIENT;
+                    if(client !== server){
+                        // If versions mismatch, go to update page and ask it to return here
+                        if(location.pathname !== '/assets/fake-xbox/xbox-update.html'){
+                            const ret = '/';
+                                location.href = '/assets/fake-xbox/xbox-update.html?return=' + encodeURIComponent(ret) + '&autostart=1';
+                        }
+                        return;
+                    }
+
+                    // If we have a flag set (from the update flow), show changelog and clear flag
+                    if(localStorage.getItem('show_changelog_after_update') === '1'){
+                        localStorage.removeItem('show_changelog_after_update');
+                        setTimeout(()=>{ if(typeof showChangelog === 'function') showChangelog(); }, 300);
+                    }
+                }catch(e){
+                    console.warn('Version check failed', e);
+                }
+            }
+
+            checkVersion();
+        });
+        </script>
+        <script>
         function showChangelog(){
             const modal = document.getElementById('changelogModal');
             const content = document.getElementById('changelogContent');
