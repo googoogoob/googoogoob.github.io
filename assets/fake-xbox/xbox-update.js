@@ -41,9 +41,9 @@
       {pct:12, text:'Verifying update package…'},
       {pct:34, text:'Preparing files…'},
       {pct:58, text:'Installing updates…'},
-      {pct:80, text:'Optimizing system…'},
-      {pct:98, text:'Finishing…'},
-      {pct:100, text:'Update complete.'}
+      {pct:80, text:'Verifying installed update'},
+      {pct:98, text:'Finalizing'},
+      {pct:100, text:'Restarting...'}
     ];
 
     let i = 0;
