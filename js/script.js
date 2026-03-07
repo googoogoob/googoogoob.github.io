@@ -73,9 +73,18 @@ function createLaunchOverlay(coverUrl, delayMs, href) {
     iframe.className = 'launch-iframe';
     iframe.src = href;
     iframe.setAttribute('allowfullscreen','');
+    iframe.setAttribute('allow','storage-access-by-user-activation');
     iframe.style.border = 'none';
     iframe.style.opacity = '0';
     overlay.appendChild(iframe);
+
+    // Request storage access for better IndexedDB support
+    if (document.requestStorageAccess) {
+        document.requestStorageAccess().catch(err => {
+            // Storage access denied, but continue anyway
+            console.log('Storage access request status:', err);
+        });
+    }
 
     // in-game menu (opens with Shift+Tab) — hidden by default
     const menu = document.createElement('div');
