@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-us"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- If deployed as a project site, change ./ to your GitHub Pages URL path -->
     <base href="./"> 
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
 	<!-- For Favicons -->
@@ -422,9 +423,11 @@
               return originalOpen.call(this, method, url, ...rest);
           };
   
+          // Now load runner.js after all setup is complete
           let runner = document.createElement("script");
           runner.src = "runner.js";
-          document.body.appendChild(runner);
+          runner.async = true;
+          document.head.appendChild(runner);
       }).catch(error => {
           console.error("Failed to merge files:", error);
       });
@@ -500,8 +503,16 @@
       var startingHeight, startingWidth;
       var startingAspect;
       var Module = {
+        locateFile: function(filename) {
+          // Ensure files are loaded from the undertale directory
+          console.log("locateFile called for:", filename);
+          return filename;
+        },
         preRun: [],
         postRun: [],
+        onRuntimeInitialized: function() {
+          console.log("Wasm module initialized successfully");
+        },
         print: (function () {
           var element = document.getElementById("output");
           if (element) element.value = ""; // clear browser cache
@@ -552,7 +563,7 @@
         printErr: function (text) {
           if (arguments.length > 1)
             text = Array.prototype.slice.call(arguments).join(" ");
-          console.error(text);
+          console.error("WASM ERROR:", text);
         },
         canvas: (function () {
           var canvas = document.getElementById("canvas");
