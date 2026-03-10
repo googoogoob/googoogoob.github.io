@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="en-us"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <base href="https://cdn.jsdelivr.net/gh/HorizonOfficia/undertale-web@main/"> 
+    <base href="./"> 
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
 	<!-- For Favicons -->
-    <link rel="icon" type="x-icon" href="https://cdn.jsdelivr.net/gh/HorizonOfficia/undertale-web/favicon.png">
+   <script>
+    alert("Undertale may have issues, send feedback in main menu(click the help/support button between games and settings)")
+   </script>
+    <link rel="icon" type="x-icon" href="../gfavicon.png">
 	<!-- For Page Title -->
     <title>UNDERTALE</title>
     <style>
@@ -418,9 +421,6 @@
               }
               return originalOpen.call(this, method, url, ...rest);
           };
-          let index = document.createElement("script");
-          index.src = "runner.js";
-          document.body.appendChild(index);
   
           let runner = document.createElement("script");
           runner.src = "runner.js";
