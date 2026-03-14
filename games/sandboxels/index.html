@@ -140,7 +140,12 @@
 		console.log("Found this on another website? Let us know!");
 		console.log("©2021-" + new Date().getFullYear() + ". All Rights Reserved. https://sandboxels.R74n.com/license.txt");
 
-		isOnSite = location.hostname === "sandboxels.r74n.com" || location.hostname === "neal.fun";
+		// Treat GitHub Pages and other known hosts as "on-site" so the game can run properly outside the official domain.
+		isOnSite = location.hostname === "sandboxels.r74n.com" ||
+			s.location.hostname === "neal.fun" ||
+			location.hostname.endsWith("github.io") ||
+			location.hostname === "localhost" ||
+			location.hostname === "127.0.0.1";
 
 		// If settings is in localStorage, load it. If not, create an empty object.
 		settings = localStorage.getItem("settings") ? JSON.parse(localStorage.getItem("settings")) : {};
