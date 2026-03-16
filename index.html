@@ -49,6 +49,41 @@
             color:#8fd04a;
         }
         
+        /* Discord modal */
+        .discord-btn{
+            position:fixed;bottom:20px;right:20px;background:#8fd04a;color:#000;border:none;padding:15px 20px;border-radius:5px;cursor:pointer;z-index:1000;font-weight:bold;font-size:16px;
+        }
+        .discord-btn:hover{
+            background:#7cb83d;
+        }
+        #discordModal{
+            display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10001;align-items:center;justify-content:center;
+        }
+        #discordModal.show{
+            display:flex;
+        }
+        .discord-box{
+            background:#1a1a1a;color:#fff;padding:30px;border-radius:8px;max-width:400px;text-align:center;position:relative;box-shadow:0 10px 40px rgba(0,0,0,0.5);
+        }
+        .discord-box h2{
+            margin-top:0;margin-bottom:20px;font-size:24px;
+        }
+        .discord-box img{
+            max-width:300px;margin:20px 0;
+        }
+        .discord-box a{
+            display:inline-block;margin-top:20px;padding:15px 25px;background:#8fd04a;color:#000;text-decoration:none;border-radius:5px;font-weight:bold;font-size:18px;
+        }
+        .discord-box a:hover{
+            background:#7cb83d;
+        }
+        .close-discord{
+            position:absolute;top:15px;right:15px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+        }
+        .close-discord:hover{
+            color:#8fd04a;
+        }
+        
         /* Goob 360 startup animation */
         #xboxStartupOverlay{
             position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;
@@ -157,6 +192,28 @@
             });
         });
         </script>
+        <script>
+        function showDiscord(){
+            document.getElementById('discordModal').classList.add('show');
+        }
+        
+        function closeDiscord(){
+            document.getElementById('discordModal').classList.remove('show');
+        }
+        
+        // Attach click event to discord button
+        document.addEventListener('DOMContentLoaded', function(){
+            document.getElementById('discordButton').onclick = showDiscord;
+            
+            // Close modal when clicking outside the box
+            const modal = document.getElementById('discordModal');
+            modal.addEventListener('click', function(e){
+                if(e.target === modal){
+                    closeDiscord();
+                }
+            });
+        });
+        </script>
         <meta content="Goob 360" property="og:title">
         <meta content="super secret definetly game site with rare games" property="og:description">
         <meta content="#008a00" data-react-helmet="true" name="theme-color">
@@ -206,8 +263,9 @@
         <div class="navbar">
             <h1 id="navbarTagline">Loading...</h1>
             <h1 class="one selected" onclick="updateCarousel(0)">Home</h1>
-            <h1 class="SupportText" onclick="window.open('https://forms.gle/ShLbJMbSLH8ecvY39', '_blank')">Support</h1>
             <h1 class="three" onclick="updateCarousel(1)">Settings</h1>
+            <h1 class="SupportText" onclick="window.open('https://forms.gle/ShLbJMbSLH8ecvY39', '_blank')">Support</h1>
+            
         </div>
         
 
@@ -244,6 +302,8 @@
         </div>
 
         <div class="tips"><img src="assets/images/icons/360_A.png"><h2>Select</h2><img src="assets/images/icons/360_Y.png"><h2>Eject</h2></div>
+        <!-- Discord Button -->
+        <button id="discordButton" class="discord-btn">Join Discord Server!</button>
         <!-- Games Library Overlay -->
         <div id="libraryOverlay" class="library-overlay" aria-hidden="true">
             <div class="library" role="dialog" aria-label="Games library">
@@ -282,6 +342,15 @@
                 <div class="username-actions">
                     <button id="usernameSave" class="close-btn">Save</button>
                 </div>
+            </div>
+        </div>
+        <!-- Discord Modal -->
+        <div id="discordModal">
+            <div class="discord-box">
+                <button class="close-discord" onclick="closeDiscord()">✕</button>
+                <h2>Join Our Discord Server</h2>
+                <img src="assets/images/discord-qr.png" alt="Discord QR Code">
+                <a href="https://discord.gg/RqwMEetY" target="_blank">Join Server</a>
             </div>
         </div>
         <script>
