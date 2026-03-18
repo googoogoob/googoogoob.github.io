@@ -40,6 +40,8 @@ function updateCarousel(currentIndex) {
     }
 
     if (searchbar) searchbar.style.display = (currentIndex === 0) ? 'flex' : 'none';
+    const discordButton = document.getElementById('discordButton');
+    if (discordButton) discordButton.style.display = (currentIndex === 0) ? 'block' : 'none';
 }
 
 // Ensure asset paths are root-relative so they work on GitHub Pages
@@ -99,6 +101,10 @@ function createLaunchOverlay(coverUrl, delayMs, href) {
     overlay.appendChild(menu);
 
     document.body.appendChild(overlay);
+
+    // Hide the Discord button while in-game (overlay active)
+    const discordButton = document.getElementById('discordButton');
+    if (discordButton) discordButton.style.display = 'none';
 
     // show overlay and animate cover → final size
     window.requestAnimationFrame(() => overlay.classList.add('visible'));
@@ -377,9 +383,9 @@ function applyLastPlayed() {
 
 // Initialize handlers once DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => { initUsername(); initLibraryHandlers(); applyGameCovers(); applyLastPlayed(); initPowerOffHandler(); });
+    document.addEventListener('DOMContentLoaded', () => { initUsername(); initProfile(); initLibraryHandlers(); applyGameCovers(); applyLastPlayed(); initPowerOffHandler(); });
 } else {
-    initUsername(); initLibraryHandlers(); applyGameCovers(); applyLastPlayed(); initPowerOffHandler();
+    initUsername(); initProfile(); initLibraryHandlers(); applyGameCovers(); applyLastPlayed(); initPowerOffHandler();
 }
 
 // --- Username prompt ---
@@ -416,6 +422,73 @@ function initUsername() {
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') save(); });
 }
 
+// --- Profile Settings ---
+function showProfileSettings() {
+    const overlay = document.getElementById('profileOverlay');
+    const usernameInput = document.getElementById('profileUsernameInput');
+    const saveBtn = document.getElementById('profileSave');
+
+    if (!overlay || !usernameInput || !saveBtn) return;
+
+    // Pre-fill current username
+    const currentUsername = localStorage.getItem('xboxUsername') || '';
+    usernameInput.value = currentUsername;
+
+    overlay.setAttribute('aria-hidden', 'false');
+    usernameInput.focus();
+
+    const save = () => {
+        const usernameVal = usernameInput.value.trim();
+        const fileInput = document.getElementById('profilePictureInput');
+        let profilePicData = null;
+
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                profilePicData = e.target.result;
+                localStorage.setItem('xboxProfilePic', profilePicData);
+                updateProfileDisplay(usernameVal, profilePicData);
+                overlay.setAttribute('aria-hidden', 'true');
+            };
+            reader.readAsDataURL(file);
+            return; // Wait for file to load
+        }
+
+        // No new picture, just update username
+        if (usernameVal) {
+            localStorage.setItem('xboxUsername', usernameVal);
+            updateProfileDisplay(usernameVal, localStorage.getItem('xboxProfilePic'));
+        }
+        overlay.setAttribute('aria-hidden', 'true');
+    };
+
+    saveBtn.addEventListener('click', save);
+    usernameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') save(); });
+}
+
+function closeProfileSettings() {
+    const overlay = document.getElementById('profileOverlay');
+    if (overlay) overlay.setAttribute('aria-hidden', 'true');
+}
+
+function updateProfileDisplay(username, profilePicData) {
+    const usernameEl = document.getElementById('username');
+    const profileImg = document.querySelector('.user img');
+
+    if (usernameEl && username) usernameEl.textContent = username;
+    if (profileImg && profilePicData) profileImg.src = profilePicData;
+}
+
+// Initialize profile picture on load
+function initProfile() {
+    const storedPic = localStorage.getItem('xboxProfilePic');
+    const profileImg = document.querySelector('.user img');
+    if (storedPic && profileImg) {
+        profileImg.src = storedPic;
+    }
+}
+
 // Navigate to off.html when powering off, and allow keyboard activation
 function powerOff() {
     // Use a relative path to work both when served and when opened via file://
@@ -439,5 +512,5 @@ function initPowerOffHandler() {
 
 
 // Ensure the function is available on the global `window` for inline handlers
-try { window.powerOff = powerOff; window.initPowerOffHandler = initPowerOffHandler; } catch (e) {}
+try { window.powerOff = powerOff; window.initPowerOffHandler = initPowerOffHandler; window.showProfileSettings = showProfileSettings; window.closeProfileSettings = closeProfileSettings; } catch (e) {}
 
