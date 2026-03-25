@@ -12,7 +12,7 @@
 </script>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Goob 360: Beta</title>
+        <title>Goob 360</title>
         <link rel="shortcut icon" href="assets/images/favicon.png">
         <link rel="stylesheet" href="css/style.css" />
         <link rel="stylesheet" href="css/x360.css" />
@@ -106,6 +106,91 @@
         #xboxStartupOverlay.phase-goob .goob-text{opacity:1}
         </style>
         <script src="js/script.js"></script>
+        <script>
+        // Load navbar tagline from external GitHub repository
+        fetch('https://raw.githubusercontent.com/thecheetoman/GSPasscode/main/quote.txt')
+            .then(response => response.text())
+            .then(text => {
+                const taglineElement = document.getElementById('navbarTagline');
+                if(taglineElement){
+                    taglineElement.innerHTML = text.split('\n').join('<br>');
+                }
+            })
+            .catch(error => {
+                console.log('Could not load navbar tagline from external repository');
+            });
+        </script>
+        <script>
+        // Automatic version check on load: if mismatch, redirect to fake update page.
+        document.addEventListener('DOMContentLoaded', function(){
+            const CLIENT_KEY = 'fake_xbox_client_version';
+            const DEFAULT_CLIENT = '1.0.0';
+
+            async function checkVersion(){
+                try{
+                    const r = await fetch('/version.json', {cache: 'no-store'});
+                    if(!r.ok) return;
+                    const j = await r.json();
+                    const server = j.version;
+                    const client = localStorage.getItem(CLIENT_KEY) || DEFAULT_CLIENT;
+                    if(client !== server){
+                        // If versions mismatch, go to update page and ask it to return here
+                        if(location.pathname !== '/assets/fake-xbox/xbox-update.html'){
+                            const ret = '/';
+                                location.href = '/assets/fake-xbox/xbox-update.html?return=' + encodeURIComponent(ret) + '&autostart=1';
+                        }
+                        return;
+                    }
+
+                    // If we have a flag set (from the update flow), show changelog and clear flag
+                    if(localStorage.getItem('show_changelog_after_update') === '1'){
+                        localStorage.removeItem('show_changelog_after_update');
+                        setTimeout(()=>{ if(typeof showChangelog === 'function') showChangelog(); }, 300);
+                    }
+                }catch(e){
+                    console.warn('Version check failed', e);
+                }
+            }
+
+            checkVersion();
+        });
+        </script>
+        <script>
+        function showChangelog(){
+            const modal = document.getElementById('changelogModal');
+            const content = document.getElementById('changelogContent');
+            
+            fetch('changelog.json')
+                .then(response => response.json())
+                .then(commits => {
+                    content.innerHTML = '';
+                    commits.forEach(commit => {
+                        const entry = document.createElement('div');
+                        entry.className = 'changelog-entry';
+                        entry.innerHTML = `<div class="changelog-date">${commit.date}</div><div class="changelog-message">${commit.message}</div>`;
+                        content.appendChild(entry);
+                    });
+                    modal.classList.add('show');
+                })
+                .catch(error => {
+                    content.innerHTML = '<p>Changelog not available. Run generate_changelog.py first.</p>';
+                    modal.classList.add('show');
+                });
+        }
+        
+        function closeChangelog(){
+            document.getElementById('changelogModal').classList.remove('show');
+        }
+        
+        // Close modal when clicking outside the box
+        document.addEventListener('DOMContentLoaded', function(){
+            const modal = document.getElementById('changelogModal');
+            modal.addEventListener('click', function(e){
+                if(e.target === modal){
+                    closeChangelog();
+                }
+            });
+        });
         </script>
         <script>
         function showDiscord(){
@@ -172,13 +257,14 @@
             </div>
         </div>
         <div class="user">
-            <h3>Beta-Mode</h3>
+            <h3 id="username">tuf</h3>
+            <img src="assets/images/profile-pic.png">
         </div>
         <div class="navbar">
-            <h1 id="navbarTagline">Goob360 Beta mode</h1>
+            <h1 id="navbarTagline">Loading...</h1>
             <h1 class="one selected" onclick="updateCarousel(0)">Home</h1>
             <h1 class="three" onclick="updateCarousel(1)">Settings</h1>
-            <h1 class="Normal mode again" onclick="window.open('https://googoogoob.github.io')">Normal</h1>
+            <h1 class="SupportText" onclick="window.open('https://forms.gle/ShLbJMbSLH8ecvY39', '_blank')">Support</h1>
             
         </div>
         
@@ -231,8 +317,60 @@
                     </div>
                 </div>
                 <div class="library-grid">
-                    <div class="game-card" data-title="fnae"><div class="game-title">fnae</div></div>
+                    <div class="game-card" data-title="hollowknight"><div class="game-title">Hollow Knight</div></div>
+                    <div class="game-card" data-title="silksong"><div class="game-title">Hollow Knight Silksong</div></div>
+                    <div class="game-card" data-title="ppg"><div class="game-title">People Playground</div></div>
+                    <div class="game-card" data-title="buckshot"><div class="game-title">Buckshot Roulette</div></div>
+                    <div class="game-card" data-title="balatro"><div class="game-title">Balatro</div></div>
+                    <div class="game-card" data-title="nothing"><div class="game-title">Nothing</div></div>
+                    <div class="game-card" data-title="codZombies"><div class="game-title">Cod Zombies</div></div>
+                    <div class="game-card" data-title="celeste"><div class="game-title">Celeste</div></div>
+                    <div class="game-card" data-title="lss"><div class="game-title">Loading Screen Simulator</div></div>
+                    <div class="game-card" data-title="brotato"><div class="game-title">Brotato(UPDATED)</div></div>
+                    <div class="game-card" data-title="pixelspeedrun"><div class="game-title">Pixel Speedrun</div></div>
+                    <div class="game-card" data-title="sandboxels"><div class="game-title">Sandboxels</div></div>
+                    <div class="game-card" data-title="shotout4"><div class="game-title">Shot Out 4</div></div>
+                    <div class="game-card" data-title="polytrack"><div class="game-title">Polytrack</div></div>
+                    <div class="game-card" data-title="uploadlabs"><div class="game-title">Upload Labs</div></div>
+                    <div class="game-card" data-title="ironlung"><div class="game-title">Iron Lung</div></div>
+                    <div class="game-card" data-title="cloverpit"><div class="game-title">Clover Pit</div></div>
+                    <div class="game-card" data-title="undertale"><div class="game-title">Undertale</div></div>
+                    <div class="game-card" data-title="fnae"><div class="game-title">five nigths at i give up</div></div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Username overlay (Xbox 360 style) c-->
+        <div id="usernameOverlay" class="username-overlay" aria-hidden="true">
+            <div class="username-box" role="dialog" aria-label="Set gamertag">
+                <h2>Welcome</h2>
+                <p class="muted">Enter your gamertag</p>
+                <input id="usernameInput" type="text" maxlength="16" placeholder="Gamertag" />
+                <div class="username-actions">
+                    <button id="usernameSave" class="close-btn">Save</button>
+                </div>
+            </div>
+        </div>
+        <!-- Profile Settings overlay -->
+        <div id="profileOverlay" class="username-overlay" aria-hidden="true">
+            <div class="username-box" role="dialog" aria-label="Profile settings">
+                <h2>Profile Settings</h2>
+                <p class="muted">Change your username and profile picture</p>
+                <input id="profileUsernameInput" type="text" maxlength="16" placeholder="Username" />
+                <input id="profilePictureInput" type="file" accept="image/*" />
+                <div class="username-actions">
+                    <button id="profileSave" class="close-btn">Save</button>
+                    <button id="profileCancel" class="close-btn" onclick="closeProfileSettings()">Cancel</button>
+                </div>
+            </div>
+        </div>
+        <!-- Discord Modal -->
+        <div id="discordModal">
+            <div class="discord-box">
+                <button class="close-discord" onclick="closeDiscord()">✕</button>
+                <h2>Join Our Discord Server</h2>
+                <img src="assets/images/discord-qr.png" alt="Discord QR Code">
+                <a href="https://discord.gg/RqwMEetY" target="_blank">Join Server</a>
             </div>
         </div>
         <script>
@@ -264,8 +402,7 @@
         })();
         </script>
         <script>
-            alert("Beta mode, only unreleased games")
+            alert("BTW in game click shift+tab to be able to return to menu!")
         </script>
-        <script src="auth.js"></script>
     </body>
 </html>
