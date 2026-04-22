@@ -1,0 +1,1422 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZRPZ3P6WM2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ZRPZ3P6WM2');
+    </script>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Goob 360</title>
+    <link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/favicon.png">
+    
+    <style>
+    /* Combined styles from style.css and x360.css */
+    body {
+    
+    background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/background.png);
+    background-size: auto 100vh; 
+    /*
+    background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/bg3.png);
+    background-size: 100vw 100vh;
+    */
+    font-family: "Open Sans", sans-serif;
+    margin: 0;
+    overflow: hidden;
+}
+
+h1 {
+    color: #a3a4a8;
+    margin: 0;
+    cursor: pointer;
+    font-size: 2.5vw;
+    font-weight: 100;
+}
+/* changed to class selector to match HTML */
+.SupportText {
+    color: #000000;
+    margin: 0;
+    cursor: wait;
+    font-size: 2.5vw;
+    font-weight: 100;
+}
+
+h2 {
+    color: #ebebeb;
+    margin: 0.3vw 0.7vw;
+    font-size: 1.3vw;
+    font-weight: 100;
+}
+
+h3 {
+    color: white;
+    margin: 0;
+    font-size: 1.2vw;
+    font-weight: 100;
+}
+
+h1.selected {
+    color: white;
+}
+
+.tile.selected {
+    opacity: 1;
+}
+
+.user {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    right: 5vw;
+    top: 2.5vw;
+    gap: 1vw;
+}
+
+.online-count {
+    color: #a3a4a8;
+    font-size: 0.9vw;
+    font-weight: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2vw;
+}
+
+.online-count #onlineNumber {
+    color: #00ff00;
+    font-size: 1.1vw;
+    font-weight: bold;
+}
+
+.user img {
+    width: 2.5vw;
+    height: auto;
+}
+
+.navbar {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 4.5vw; /* moved up */
+    gap: 2.5vw;
+    font-size: 2.5vh;
+}
+
+.searchbar {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 40vh; /* raised up */
+    width: 4.5vw;
+    height: 4vw;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.searchbar h1 {
+    color: #ebebeb;
+    font-size: 3vw;
+}
+
+.tiles {
+    display: flex;
+    width: fit-content;
+    margin: 3vw auto 0 auto; /* raised tiles closer to navbar */
+    transition: transform 0.3s ease-in-out;
+}
+
+.tile {
+    display: flex;
+    justify-content: center;
+    margin: 3vw 7vw;
+    width: 64vw;
+    gap: 0.4vw;
+    opacity: 0.75;
+    transition: opacity 0.3s ease-in-out
+}
+
+.tile.big {
+    width: 72vw; /* slightly narrower to avoid horizontal overflow */
+}
+
+.left-side {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: flex-end;
+    gap: 0.4vw;
+    max-height: 28.7vw;
+}
+
+.middle-side {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 0.4vw;
+    max-width: 55.2vw;
+    max-height: 27.4vw;
+}
+
+.right-side {
+    width: 50.1vw;
+}
+
+.right-side.big {
+    width: 71vw;
+}
+
+.banner {
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/logo.png) center center / 25vw no-repeat #1d1d1d;
+    transition: transform 0.35s cubic-bezier(.2,.9,.2,1), box-shadow 0.35s ease-in-out;
+}
+
+.banner:hover {
+    scale: 1.05;
+    box-shadow: black 0 0 20px;
+}
+
+/* clickable banner (last-played) */
+.banner.clickable { cursor: pointer; }
+.banner.clickable:hover { transform: scale(1.02); box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+
+/* Launching animation and spinner overlay */
+.banner.launching {
+    z-index: 200;
+    box-shadow: 0 30px 90px rgba(0,0,0,0.8);
+    /* move to fixed center and expand to fill most of viewport */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 75vw;
+    height: 75vh;
+    transform: translate(-50%, -50%) scale(1);
+    transition: transform 0.4s cubic-bezier(.2,.9,.2,1), width 0.4s ease, height 0.4s ease, top 0.4s ease, left 0.4s ease, box-shadow 0.35s ease-in-out;
+    /* ensure the background image scales to fill the expanded area */
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+}
+.launch-spinner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.22);
+    pointer-events: none;
+}
+.launch-spinner .spinner {
+    width: 4.2vw;
+    height: 4.2vw;
+    border-radius: 50%;
+    border: 0.5vw solid rgba(255,255,255,0.12);
+    border-top-color: rgba(255,255,255,0.95);
+    animation: spin 0.9s linear infinite;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Ingame font */
+@font-face {
+    font-family: 'Ingame';
+    src: url('https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/fonts/ingame.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Fullscreen centered overlay used for launching */
+.launch-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    z-index: 500;
+    opacity: 0;
+    transition: opacity 160ms ease-in;
+    overflow: hidden;
+}
+.launch-overlay.visible { opacity: 1; }
+.launch-overlay .launch-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    border-radius: 0;
+    box-shadow: none;
+    /* start slightly smaller and scale to full size when overlay becomes visible */
+    transform: scale(0.88);
+    opacity: 0.0;
+    transform-origin: center center;
+    transition: transform 340ms cubic-bezier(.2,.9,.2,1), opacity 180ms ease-in;
+}
+.launch-overlay.visible .launch-image {
+    transform: scale(1);
+    opacity: 1;
+}
+.launch-overlay .launch-spinner { position: absolute; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.12); }
+.launch-overlay .launch-spinner .spinner { width: 4.2vw; height: 4.2vw; border-radius: 50%; border: 0.5vw solid rgba(255,255,255,0.12); border-top-color: rgba(255,255,255,0.95); animation: spin 0.9s linear infinite; box-shadow: 0 6px 18px rgba(0,0,0,0.45); }
+
+.launch-overlay .launch-iframe { width: 100vw; height: 100vh; border: none; border-radius: 0; box-shadow: none; background: black; z-index: 500; }
+.launch-overlay .launch-spinner { position: absolute; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.12); z-index: 900; }
+.launch-overlay .launch-spinner .spinner { width: 4.2vw; height: 4.2vw; border-radius: 50%; border: 0.5vw solid rgba(255,255,255,0.12); border-top-color: rgba(255,255,255,0.95); animation: spin 0.9s linear infinite; box-shadow: 0 6px 18px rgba(0,0,0,0.45); }
+/* removed .launch-close-btn per UX request (Shift+Tab menu used instead) */
+
+/* In-game menu styles (Shift+Tab) */
+.in-game-menu { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 910; }
+.in-game-menu {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 910;
+}
+/* dim the game behind the menu */
+.in-game-menu::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 905;
+    opacity: 0;
+    transition: opacity 160ms ease-in;
+}
+.in-game-menu.show::before { opacity: 1; }
+.in-game-menu .menu-box {
+    pointer-events: auto;
+    background: rgba(12,12,12,0.96);
+    padding: 1.2vw;
+    border-radius: 0.8vw;
+    display:flex;
+    gap: 0.8vw;
+    align-items:center;
+    z-index: 910;
+    font-family: Ingame, sans-serif;
+    /* position bottom-left */
+    position: absolute;
+    left: 2.5vw;
+    bottom: 2.5vh;
+}
+.in-game-menu .menu-btn {
+    background: #1a1a1a;
+    color: #fff;
+    border: 0.12vw solid rgba(255,255,255,0.06);
+    padding: 0.8vw 1.2vw;
+    font-size: 1.2vw;
+    border-radius: 0.6vw;
+    cursor: pointer;
+    font-family: Ingame, sans-serif;
+}
+.in-game-menu .menu-btn:hover { background: #262626; }
+
+/* Exit transition: fade/scale out the iframe before removing overlay */
+.launch-overlay.exiting .launch-iframe {
+    transition: transform 380ms ease, opacity 320ms ease;
+    transform: scale(0.96);
+    opacity: 0;
+}
+.launch-overlay.exiting .launch-image { transition: opacity 260ms ease; opacity: 0; }
+
+.rectangle {
+    display: flex;
+    align-items: flex-end;
+    width: 13.5vw;
+    height: 9.3vw;
+    cursor: pointer;
+    transition: scale 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.rectangle:hover {
+    scale: 1.1;
+    box-shadow: black 0 0 20px;
+}
+
+.rectangle.one {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/open-tray.png) center center / 6vw no-repeat #008a00;}
+.rectangle.one:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/open-tray.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.two {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/my-pins.png) center center / 6vw no-repeat #008a00;}
+.rectangle.two:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/my-pins.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.three {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/recent.png) center center / 6vw no-repeat #008a00;}
+.rectangle.three:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/recent.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.four {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/friends.png) center center / 6vw no-repeat #008a00;}
+.rectangle.four:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/friends.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.five {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/placeholder.png) center center / 6vw no-repeat #008a00;}
+.rectangle.five:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/placeholder.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.six {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/sign-out.png) center center / 6vw no-repeat #008a00;}
+.rectangle.six:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/sign-out.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.seven {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/games.png) center center / 6vw no-repeat #008a00;}
+.rectangle.seven:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/games.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.eight {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/store.png) center center / 6vw no-repeat #008a00;}
+.rectangle.eight:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/store.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.nine {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/search.png) center center / 6vw no-repeat #008a00;}
+.rectangle.nine:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/search.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.ten {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/tiles.png) center center / 6vw no-repeat #008a00;}
+.rectangle.ten:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/tiles.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.eleven {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/store.png) center center / 6vw no-repeat #008a00;}
+.rectangle.eleven:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/store.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.twelve {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/search.png) center center / 6vw no-repeat #008a00;}
+.rectangle.twelve:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/search.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.thirteen {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/xbox.png) center center / 6vw no-repeat #008a00;}
+.rectangle.thirteen:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/xbox.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.fourteen {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/placeholder.png) center center / 6vw no-repeat #008a00;}
+.rectangle.fourteen:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/placeholder.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.fifteen {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/tiles.png) center center / 6vw no-repeat #008a00;}
+.rectangle.fifteen:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/tiles.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.sixteen {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/xbox.png) center center / 6vw no-repeat #008a00;}
+.rectangle.sixteen:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/xbox.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.seventeen {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/search.png) center center / 6vw no-repeat #008a00;}
+.rectangle.seventeen:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/search.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.eighteen {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/tiles.png) center center / 6vw no-repeat #008a00;}
+.rectangle.eighteen:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/tiles.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.nineteen {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/store.png) center center / 6vw no-repeat #008a00;}
+.rectangle.nineteen:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/store.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.rectangle.twenty {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/search.png) center center / 6vw no-repeat #008a00;}
+.rectangle.twenty:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/search.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+
+.square {
+    display: flex;
+    align-items: flex-end;
+    width: 13.5vw;
+    height: 13.5vw;
+    cursor: pointer;
+    transition: scale 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.square:hover {
+    scale: 1.1;
+    box-shadow: black 0 0 20px;
+}
+
+.square.one {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/system.png) center center / 6vw no-repeat #008a00;}
+.square.one:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/system.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.square.two {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/profile.png) center center / 6vw no-repeat #008a00;}
+.square.two:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/profile.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.square.three {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/preferences.png) center center / 6vw no-repeat #008a00;}
+.square.three:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/preferences.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.square.four {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/kinect.png) center center / 6vw no-repeat #008a00;}
+.square.four:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/kinect.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.square.five {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/placeholder.png) center center / 6vw no-repeat #008a00;}
+.square.five:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/placeholder.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.square.six {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/placeholder.png) center center / 6vw no-repeat #008a00;}
+.square.six:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/placeholder.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.square.seven {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/family.png) center center / 6vw no-repeat #008a00;}
+.square.seven:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/family.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+.square.eight {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/sign-out.png) center center / 6vw no-repeat #008a00;}
+.square.eight:hover {background: url(https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/sign-out.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+
+.tips {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    bottom: 2.2vw;
+    left: 9vw;
+    gap: 0.2vw;
+}
+
+.tips img {
+    width: 2vw;
+    height: auto;
+}
+
+.tips h2 {
+    margin: 0 1vw 0 0;
+    font-size: 1.5vw;
+    text-shadow: 0 0 2px black;
+}
+
+/* Games library overlay */
+.library-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.85);
+    z-index: 60;
+    transform: translateY(100%);
+    transition: transform 0.35s ease-in-out;
+    pointer-events: none;
+}
+.library-overlay.open {
+    transform: translateY(0);
+    pointer-events: auto;
+}
+.library {
+    width: 88vw;
+    height: 78vh;
+    background: linear-gradient(180deg,#121212,#1e1e1e);
+    border-radius: 0.8vw;
+    padding: 1.6vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Username overlay */
+.username-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.7);
+    z-index: 80;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+.username-overlay[aria-hidden="false"] { pointer-events: auto; opacity: 1; }
+.username-box {
+    width: 36vw;
+    background: linear-gradient(180deg,#0f0f0f,#1b1b1b);
+    border-radius: 0.8vw;
+    padding: 2vw;
+    display: flex;
+    flex-direction: column;
+    gap: 1vw;
+    align-items: center;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.7);
+}
+.username-box h2 { color: #fff; margin: 0; font-size: 2vw; }
+.username-box .muted { color: #bdbdbd; margin: 0; }
+.username-box input {
+    width: 80%;
+    padding: 0.8vw 1vw;
+    font-size: 1.2vw;
+    border-radius: 0.6vw;
+    border: 0.12vw solid rgba(255,255,255,0.08);
+    background: #0b0b0b;
+    color: #fff;
+}
+.username-actions { display: flex; justify-content: center; width: 100%; }
+.username-actions .close-btn { padding: 0.6vw 1.2vw; }
+.library-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    margin-bottom: 1vw;
+}
+.close-btn {
+    background: transparent;
+    border: 0.12vw solid rgba(255,255,255,0.12);
+    color: #fff;
+    padding: 0.6vw 1vw;
+    border-radius: 0.6vw;
+    cursor: pointer;
+}
+.library-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12.5vw, 1fr));
+    gap: 1vw;
+    overflow: auto;
+    padding: 0.4vw;
+    height: calc(100% - 3.4vw);
+}
+.game-card {
+    background: linear-gradient(180deg,#222,#151515);
+    background-size: cover;
+    background-position: center center;
+    height: 11vw;
+    border-radius: 0.6vw;
+    display: flex;
+    align-items: flex-end;
+    padding: 0.8vw;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border 0.18s ease;
+    border: 0.12vw solid transparent;
+    position: relative;
+}
+.game-card:hover { transform: translateY(-0.5vw); box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+.game-card.selected { border-color: rgba(0,138,0,0.9); box-shadow: 0 12px 34px rgba(0,138,0,0.08); }
+.game-title { font-size: 1.1vw; font-weight: 600; position: absolute; left: 0.8vw; bottom: 0.8vw; background: rgba(0,0,0,0.45); padding: 0.25vw 0.6vw; border-radius: 0.4vw; }
+
+/* Launching style for game cards to enlarge with spinner overlay */
+.game-card.launching {
+    z-index: 220;
+    box-shadow: 0 28px 80px rgba(0,0,0,0.7);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 75vw;
+    height: 75vh;
+    transform: translate(-50%, -50%) scale(1);
+    transition: transform 0.4s cubic-bezier(.2,.9,.2,1), width 0.4s ease, height 0.4s ease, top 0.4s ease, left 0.4s ease, box-shadow 0.35s ease-in-out;
+    border-radius: 0.6vw;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+}
+.game-card .launch-spinner { position: absolute; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.18); pointer-events: none; }
+.game-card .launch-spinner .spinner { width: 28%; height: 28%; border-radius: 50%; border: 0.5vw solid rgba(255,255,255,0.12); border-top-color: rgba(255,255,255,0.95); animation: spin 0.9s linear infinite; }
+    </style>
+    
+    <meta content="Goob 360" property="og:title">
+    <meta content="super secret definetly game site with rare games" property="og:description">
+    <meta content="#008a00" data-react-helmet="true" name="theme-color">
+    <meta http-equiv="Permissions-Policy" content="storage-access-by-user-activation=*, geolocation=(), camera=(), microphone=()">
+</head>
+<body>
+    
+        <!-- Changelog Modal -->
+        <div id="changelogModal">
+            <div class="changelog-box">
+                <button class="close-changelog" onclick="closeChangelog()">âœ•</button>
+                <h2>Changelog</h2>
+                <div id="changelogContent"></div>
+            </div>
+        </div>
+        <!-- Goob 360 startup overlay -->
+        <div id="xboxStartupOverlay" aria-hidden="false" role="dialog">
+            <div class="xbox-anim" role="alert" aria-live="assertive">
+                <svg class="xbox-svg" viewBox="0 0 200 350" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <defs>
+                        <radialGradient id="sphGrad" cx="40%" cy="40%" r="60%">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+                            <stop offset="60%" stop-color="#e6e6e6" stop-opacity="1"/>
+                            <stop offset="100%" stop-color="#bfbfbf" stop-opacity="1"/>
+                        </radialGradient>
+                        <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.25"/>
+                        </filter>
+                    </defs>
+
+                    <!-- circle -->
+                    <g class="sphere" transform="translate(0,0)">
+                        <circle cx="100" cy="100" r="70" fill="url(#sphGrad)" filter="url(#shadow)" />
+                    </g>
+
+                    <!-- G letter in center -->
+                    <text class="center-letter" x="100" y="105" text-anchor="middle" dominant-baseline="central">G</text>
+
+                    <!-- goob 360 text below circle -->
+                    <text x="100" y="240" text-anchor="middle" class="goob-text"><tspan fill="#888888">goob</tspan> <tspan fill="#8fd04a">360</tspan></text>
+                </svg>
+            </div>
+        </div>
+        <div class="user">
+            <h3 id="username">tuf</h3>
+            <img src="https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/profile-pic.png">
+        </div>
+        <div class="navbar">
+            <h1 id="navbarTagline">Loading...</h1>
+            <h1 class="one selected" onclick="updateCarousel(0)">Home</h1>
+            <h1 class="three" onclick="updateCarousel(1)">Settings</h1>
+            <h1 class="SupportText" onclick="window.open('https://forms.gle/ShLbJMbSLH8ecvY39', '_blank')">Support</h1>
+            
+        </div>
+        
+
+        <div class="tiles">
+            <div class="tile selected">
+                <div class="left-side">
+                    <div class="rectangle one" onclick="alert('fym open tray?')">
+                        <h2>Open Tray</h2>
+                    </div>
+                    <div class="rectangle eight">
+                        <h2>Games</h2>
+                    </div>
+                    <div class="rectangle three" onclick="showChangelog()">
+                        <h2>Changelog</h2>
+                    </div>
+                </div>
+                <div class="right-side">
+                    <div class="banner">
+                        <h2>Your recently played game</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tile big">
+                <div class="middle-side">
+                    <div class="square one">
+                        <h2>System</h2>
+                    </div>
+                    <div class="square two" onclick="showProfileSettings()">
+                        <h2>Profile</h2>
+                    </div>
+                    <div class="square eight" role="button" tabindex="0">
+                        <h2>Power Off</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tips"><img src="https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/360_A.png"><h2>Select</h2><img src="https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/icons/360_Y.png"><h2>Eject</h2></div>
+        <!-- Discord Button -->
+        <button id="discordButton" class="discord-btn">Join Discord Server!</button>
+        <!-- Games Library Overlay -->
+        <div id="libraryOverlay" class="library-overlay" aria-hidden="true">
+            <div class="library" role="dialog" aria-label="Games library">
+                <div class="library-header">
+                    <h2>Game Library</h2>
+                    <div>
+                        <button class="close-btn">Close</button>
+                    </div>
+                </div>
+                <div class="library-grid">
+                    <div class="game-card" data-title="hk"><div class="game-title">Hollow Knight</div></div>
+                    <div class="game-card" data-title="silksong"><div class="game-title">Hollow Knight Silksong</div></div>
+                    <div class="game-card" data-title="ppg"><div class="game-title">People Playground</div></div>
+                    <div class="game-card" data-title="buckshot"><div class="game-title">Buckshot Roulette</div></div>
+                    <div class="game-card" data-title="balatro"><div class="game-title">Balatro</div></div>
+                    <div class="game-card" data-title="nothing"><div class="game-title">Nothing</div></div>
+                    <div class="game-card" data-title="something"><div class="game-title">Something</div></div>
+                    <div class="game-card" data-title="codZombies"><div class="game-title">Cod Zombies</div></div>
+                    <div class="game-card" data-title="celeste"><div class="game-title">Celeste</div></div>
+                    <div class="game-card" data-title="ngon"><div class="game-title">N-Gon</div></div>
+                    <div class="game-card" data-title="lss"><div class="game-title">Loading Screen Simulator</div></div>
+                    <div class="game-card" data-title="brotato"><div class="game-title">Brotato(UPDATED)</div></div>
+                    <div class="game-card" data-title="pixelspeedrun"><div class="game-title">Pixel Speedrun</div></div>
+                    <div class="game-card" data-title="sandboxels"><div class="game-title">Sandboxels</div></div>
+                    <div class="game-card" data-title="shotout4"><div class="game-title">Shot Out 4</div></div>
+                    <div class="game-card" data-title="polytrack"><div class="game-title">Polytrack</div></div>
+                    <div class="game-card" data-title="uploadlabs"><div class="game-title">Upload Labs</div></div>
+                    <div class="game-card" data-title="ironlung"><div class="game-title">Iron Lung</div></div>
+                    <div class="game-card" data-title="cloverpit"><div class="game-title">Clover Pit</div></div>
+                    <div class="game-card" data-title="undertale"><div class="game-title">Undertale</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Username overlay (Xbox 360 style) c-->
+        <div id="usernameOverlay" class="username-overlay" aria-hidden="true">
+            <div class="username-box" role="dialog" aria-label="Set gamertag">
+                <h2>Welcome</h2>
+                <p class="muted">Enter your gamertag</p>
+                <input id="usernameInput" type="text" maxlength="16" placeholder="Gamertag" />
+                <div class="username-actions">
+                    <button id="usernameSave" class="close-btn">Save</button>
+                </div>
+            </div>
+        </div>
+        <!-- Profile Settings overlay -->
+        <div id="profileOverlay" class="username-overlay" aria-hidden="true">
+            <div class="username-box" role="dialog" aria-label="Profile settings">
+                <h2>Profile Settings</h2>
+                <p class="muted">Change your username and profile picture</p>
+                <input id="profileUsernameInput" type="text" maxlength="16" placeholder="Username" />
+                <input id="profilePictureInput" type="file" accept="image/*" />
+                <div class="username-actions">
+                    <button id="profileSave" class="close-btn">Save</button>
+                    <button id="profileCancel" class="close-btn" onclick="closeProfileSettings()">Cancel</button>
+                </div>
+            </div>
+        </div>
+        <!-- Discord Modal -->
+        <div id="discordModal">
+            <div class="discord-box">
+                <button class="close-discord" onclick="closeDiscord()">âœ•</button>
+                <h2>Join Our Discord Server</h2>
+                <img src="https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/images/discord-qr.png" alt="Discord QR Code">
+                <a href="https://discord.gg/RqwMEetY" target="_blank">Join Server</a>
+            </div>
+        </div>
+        <script>
+        (function(){
+            function startSequence(){
+                var overlay = document.getElementById('xboxStartupOverlay');
+                if(!overlay) return;
+
+                var t0 = 40;
+                var sphereAt = 300;       // circle appears first
+                var letterAt = 800;       // G appears
+                var goobAt = 1200;        // goob 360 text appears
+                var fadeOutAt = 3200;     // stay visible for ~1.5 seconds after all elements show
+
+                setTimeout(function(){ overlay.classList.add('phase-sphere'); }, t0 + sphereAt);
+                setTimeout(function(){ overlay.classList.add('phase-letter'); }, t0 + letterAt);
+                setTimeout(function(){ overlay.classList.add('phase-goob'); }, t0 + goobAt);
+
+                setTimeout(function(){ overlay.classList.add('hide'); overlay.setAttribute('aria-hidden','true');
+                    setTimeout(function(){ if(overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 700);
+                }, fadeOutAt);
+            }
+
+            if(document.readyState === 'complete' || document.readyState === 'interactive'){
+                setTimeout(startSequence, 60);
+            } else {
+                document.addEventListener('DOMContentLoaded', startSequence);
+            }
+        })();
+        </script>
+        <script>
+            alert("BTW in game click shift+tab to be able to return to menu!")
+        </script>
+    
+
+    <script>
+    // Inline page scripts
+    function updateCarousel(currentIndex) {
+    const headers = document.querySelectorAll('h1');
+    headers.forEach(h => h.classList.remove('selected'));
+    const headerIndex = currentIndex + 1; // first h1 is brand/title
+    if (headers[headerIndex]) headers[headerIndex].classList.add('selected');
+
+    const tiles = Array.from(document.querySelectorAll('.tile'));
+    tiles.forEach(t => t.classList.remove('selected'));
+    const target = tiles[currentIndex];
+    if (target) target.classList.add('selected');
+
+    const slider = document.querySelector('.tiles');
+    const searchbar = document.querySelector('.searchbar');
+    if (!slider) return;
+
+    // Compute transform so the target tile is centered in the viewport.
+    if (target) {
+        const tileRect = target.getBoundingClientRect();
+        const viewportCenter = window.innerWidth / 2;
+
+        // Current translateX applied to slider (read from computed transform)
+        const style = window.getComputedStyle(slider);
+        let currentX = 0;
+        try {
+            const matrix = new DOMMatrixReadOnly(style.transform);
+            currentX = matrix.m41;
+        } catch (e) {
+            // fallback: parse matrix string
+            const m = style.transform.match(/matrix\((.+)\)/);
+            if (m) {
+                const vals = m[1].split(',');
+                currentX = parseFloat(vals[4]);
+            }
+        }
+
+        const targetCenterOnScreen = tileRect.left + (tileRect.width / 2);
+        const delta = targetCenterOnScreen - viewportCenter;
+        const newTranslate = currentX - delta;
+        slider.style.transform = `translateX(${newTranslate}px)`;
+    }
+
+    if (searchbar) searchbar.style.display = (currentIndex === 0) ? 'flex' : 'none';
+    const discordButton = document.getElementById('discordButton');
+    if (discordButton) discordButton.style.display = (currentIndex === 0) ? 'block' : 'none';
+}
+
+// Ensure asset paths are root-relative so they work on GitHub Pages
+function normalizeAssetPath(p) {
+    if (!p) return p;
+    // leave absolute URLs and data URIs alone
+    if (/^(https?:|data:|\/)/.test(p)) return p;
+    return '/' + p.replace(/^(\.\/|\/+)+/, '');
+}
+// Create a centered overlay showing the cover image and spinner, then navigate
+function createLaunchOverlay(coverUrl, delayMs, href) {
+    const normalized = normalizeAssetPath(coverUrl || '');
+    const overlay = document.createElement('div');
+    overlay.className = 'launch-overlay';
+
+    // cover image shown while iframe loads
+    const img = document.createElement('img');
+    img.className = 'launch-image';
+    img.alt = '';
+    img.src = normalized || '';
+    overlay.appendChild(img);
+
+    // spinner on top of cover
+    const spinnerWrap = document.createElement('div');
+    spinnerWrap.className = 'launch-spinner';
+    spinnerWrap.innerHTML = '<div class="spinner" aria-hidden="true"></div>';
+    overlay.appendChild(spinnerWrap);
+
+    // iframe (hidden until loaded)
+    const iframe = document.createElement('iframe');
+    iframe.className = 'launch-iframe';
+    iframe.src = href;
+    iframe.setAttribute('allowfullscreen','');
+    iframe.setAttribute('allow','storage-access-by-user-activation');
+    iframe.style.border = 'none';
+    iframe.style.opacity = '0';
+    overlay.appendChild(iframe);
+
+    // Request storage access for better IndexedDB support
+    if (document.requestStorageAccess) {
+        document.requestStorageAccess().catch(err => {
+            // Storage access denied, but continue anyway
+            console.log('Storage access request status:', err);
+        });
+    }
+
+    // in-game menu (opens with Shift+Tab) â€” hidden by default
+    const menu = document.createElement('div');
+    menu.className = 'in-game-menu';
+    menu.innerHTML = `
+        <div class="menu-box" role="dialog" aria-modal="true">
+            <button class="menu-btn continue">Continue</button>
+            <button class="menu-btn exit">Exit to Menu</button>
+        </div>
+    `;
+    menu.style.display = 'none';
+    overlay.appendChild(menu);
+
+    document.body.appendChild(overlay);
+
+    // Hide the Discord button while in-game (overlay active)
+    const discordButton = document.getElementById('discordButton');
+    if (discordButton) discordButton.style.display = 'none';
+
+    // show overlay and animate cover â†’ final size
+    window.requestAnimationFrame(() => overlay.classList.add('visible'));
+
+    // ensure spinner remains at least this long (ms) so it doesn't flash away
+    const minSpinnerMs = 900;
+    const shownAt = Date.now();
+
+    // when iframe loads, fade it in and remove spinner/cover after min duration
+    iframe.addEventListener('load', () => {
+        const elapsed = Date.now() - shownAt;
+        const removeNow = () => {
+            iframe.style.transition = 'opacity 220ms ease-in';
+            iframe.style.opacity = '1';
+            // fade out spinner and cover
+            if (spinnerWrap && spinnerWrap.parentNode) spinnerWrap.parentNode.removeChild(spinnerWrap);
+            if (img && img.parentNode) img.parentNode.removeChild(img);
+            // allow interactions with iframe
+            overlay.style.pointerEvents = 'auto';
+        };
+        if (elapsed >= minSpinnerMs) removeNow(); else setTimeout(removeNow, minSpinnerMs - elapsed);
+    });
+
+    // fallback: if iframe doesn't fire load within a longer timeout, still show it
+    setTimeout(() => {
+        if (iframe && iframe.style.opacity === '0') {
+            try { iframe.style.opacity = '1'; } catch (e) {}
+            if (spinnerWrap && spinnerWrap.parentNode) spinnerWrap.parentNode.removeChild(spinnerWrap);
+            if (img && img.parentNode) img.parentNode.removeChild(img);
+            overlay.style.pointerEvents = 'auto';
+        }
+    }, Math.max(delayMs || 1500, 3000));
+
+    // functions to show/hide menu (used from parent or injected iframe listener)
+    const showMenu = () => {
+        if (menu.style.display === 'none') {
+            menu.style.display = 'flex';
+            menu.classList.add('show');
+            const btn = menu.querySelector('.menu-btn.continue');
+            try { btn.focus(); } catch (e) {}
+        }
+    };
+    const hideMenu = () => {
+        if (menu.style.display !== 'none') {
+            menu.style.display = 'none';
+            menu.classList.remove('show');
+        }
+    };
+
+    // keyboard/menu handling for the overlay (Shift+Tab to open menu)
+    const keyHandler = (e) => {
+        // Shift+Tab opens the menu
+        if (e.key === 'Tab' && e.shiftKey) {
+            e.preventDefault();
+            showMenu();
+            return;
+        }
+        // Esc closes the menu if open
+        if (e.key === 'Escape' && menu.style.display !== 'none') {
+            hideMenu();
+        }
+    };
+    document.addEventListener('keydown', keyHandler);
+
+    // menu button actions
+    const btnContinue = menu.querySelector('.menu-btn.continue');
+    const btnExit = menu.querySelector('.menu-btn.exit');
+    btnContinue.addEventListener('click', () => { hideMenu(); });
+    btnExit.addEventListener('click', () => {
+        // play exit animation then remove overlay and return to home
+        overlay.classList.add('exiting');
+        // prevent further menu interactions
+        try { overlay.style.pointerEvents = 'none'; } catch (e) {}
+        try {
+            // trigger iframe fade/scale (iframe is in scope)
+            iframe.style.transition = 'opacity 320ms ease, transform 380ms ease';
+            iframe.style.transform = 'scale(0.96)';
+            iframe.style.opacity = '0';
+        } catch (e) {}
+        const cleanup = () => {
+            if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            try { document.removeEventListener('keydown', keyHandler); } catch (e) {}
+            try { updateCarousel(0); } catch (e) {}
+        };
+        // wait for animation to finish then cleanup
+        setTimeout(cleanup, 480);
+    });
+
+    // when overlay is removed by other means, ensure we remove the key handler
+    // try to attach a key listener inside the iframe (allows games to trigger Shift+Tab)
+    let iframeKeyHandler = null;
+    const attachIframeKeyListener = () => {
+        try {
+            iframeKeyHandler = (e) => {
+                if (e.key === 'Tab' && e.shiftKey) {
+                    e.preventDefault();
+                    showMenu();
+                }
+            };
+            // attach to iframe's window and document if same-origin
+            if (iframe && iframe.contentWindow) iframe.contentWindow.addEventListener('keydown', iframeKeyHandler);
+            if (iframe && iframe.contentDocument && iframe.contentDocument.defaultView) iframe.contentDocument.defaultView.addEventListener('keydown', iframeKeyHandler);
+        } catch (e) {
+            // cross-origin iframe â€” cannot attach; fallback requires cooperation from game via postMessage
+            iframeKeyHandler = null;
+        }
+    };
+    // attach when iframe is ready
+    iframe.addEventListener('load', () => attachIframeKeyListener());
+
+    const observer = new MutationObserver(() => {
+        if (!document.body.contains(overlay)) {
+            try { document.removeEventListener('keydown', keyHandler); } catch (e) {}
+            try {
+                if (iframeKeyHandler && iframe && iframe.contentWindow) iframe.contentWindow.removeEventListener('keydown', iframeKeyHandler);
+            } catch (e) {}
+            observer.disconnect();
+        }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+// Keep carousel position correct on resize
+window.addEventListener('resize', () => {
+    const tiles = Array.from(document.querySelectorAll('.tile'));
+    const selectedIndex = tiles.findIndex(t => t.classList.contains('selected'));
+    if (selectedIndex >= 0) updateCarousel(selectedIndex);
+});
+
+// --- Games library interactions ---
+function initLibraryHandlers() {
+    const browseBtn = document.querySelector('.rectangle.eight');
+    const libraryOverlay = document.getElementById('libraryOverlay');
+    if (!browseBtn || !libraryOverlay) return;
+
+    const closeBtn = libraryOverlay.querySelector('.close-btn');
+
+    const openLibrary = () => {
+        libraryOverlay.classList.add('open');
+        libraryOverlay.setAttribute('aria-hidden', 'false');
+    };
+    const closeLibrary = () => {
+        libraryOverlay.classList.remove('open');
+        libraryOverlay.setAttribute('aria-hidden', 'true');
+    };
+
+    browseBtn.addEventListener('click', openLibrary);
+    closeBtn.addEventListener('click', closeLibrary);
+
+    libraryOverlay.addEventListener('click', (e) => {
+        if (e.target === libraryOverlay) closeLibrary();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeLibrary();
+    });
+
+    // Game selection: clicking opens the game's page in games/<slug>.html
+    const cards = libraryOverlay.querySelectorAll('.game-card');
+    const slugify = (s) => s.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
+    cards.forEach(card => {
+        card.addEventListener('click', (e) => {
+            const title = card.dataset.title || '';
+            const slug = slugify(title);
+                // determine cover URL from computed style if present
+                let coverUrl = null;
+                try {
+                    const cs = window.getComputedStyle(card);
+                    const bg = cs.backgroundImage || '';
+                    const m = bg.match(/url\(["']?(.*?)["']?\)/);
+                    if (m && m[1] && m[1] !== 'none') coverUrl = m[1];
+                } catch (e) { /* ignore */ }
+
+                if (!coverUrl) coverUrl = normalizeAssetPath(`assets/images/games/${slug}.png`);
+
+                // save last-played info (store normalized path)
+                try {
+                    localStorage.setItem('lastPlayed', JSON.stringify({ title: title, slug: slug, cover: normalizeAssetPath(coverUrl) }));
+                } catch (e) { /* ignore storage errors */ }
+
+                // Show centered overlay with the cover image + spinner, then navigate
+                if (card.dataset.launching !== '1') {
+                    card.dataset.launching = '1';
+                    createLaunchOverlay(coverUrl, 700, `games/${slug}.html`);
+                }
+        });
+    });
+}
+
+// Apply last-played game to the main banner on the home tile
+function applyLastPlayed() {
+    try {
+        const raw = localStorage.getItem('lastPlayed');
+        if (!raw) return;
+        const obj = JSON.parse(raw);
+        if (!obj) return;
+
+        const banner = document.querySelector('.tiles .tile .right-side .banner');
+        if (!banner) return;
+
+        // set cover if available (normalize stored path)
+        if (obj.cover) {
+            const coverPath = normalizeAssetPath(obj.cover);
+            banner.style.background = `url('${coverPath}') center center / cover no-repeat #1d1d1d`;
+        }
+
+        // set title inside banner
+        let h = banner.querySelector('h2');
+        if (!h) {
+            h = document.createElement('h2');
+            banner.appendChild(h);
+        }
+        h.textContent = obj.title || '';
+
+        // make banner clickable to return to last-played game with an animated launch
+        banner.classList.add('clickable');
+        banner.setAttribute('role', 'button');
+        banner.setAttribute('tabindex', '0');
+        const targetSlug = (obj.slug || obj.title.toLowerCase().replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'-'));
+        const navigateToGame = () => { window.location.href = `games/${targetSlug}.html`; };
+
+        const launchAndNavigate = (e) => {
+            // prevent double-activation
+            if (banner.dataset.launching === '1') return;
+            banner.dataset.launching = '1';
+            // compute cover url (use stored or from computed style)
+            let coverUrl = (obj.cover) ? normalizeAssetPath(obj.cover) : null;
+            try {
+                if (!coverUrl) {
+                    const cs = window.getComputedStyle(banner);
+                    const bg = cs.backgroundImage || '';
+                    const m = bg.match(/url\(["']?(.*?)["']?\)/);
+                    if (m && m[1] && m[1] !== 'none') coverUrl = m[1];
+                }
+            } catch (e) { /* ignore */ }
+            createLaunchOverlay(coverUrl, 800, `games/${targetSlug}.html`);
+        };
+
+        banner.addEventListener('click', launchAndNavigate);
+        banner.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') launchAndNavigate(); });
+    } catch (e) {
+        // ignore
+    }
+}
+
+    // Load cover images for game cards, trying multiple filename variants and extensions
+    function applyGameCovers() {
+        const cards = document.querySelectorAll('.game-card');
+        const slugify = (s) => s.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-');
+        const exts = ['png','jpg','jpeg','webp'];
+        cards.forEach(card => {
+            const titleRaw = card.dataset.title || card.textContent || '';
+            const title = String(titleRaw).trim();
+            const slug = slugify(title);
+            const slugNoHyphen = slug.replace(/-/g, '');
+            const compactTitle = title.toLowerCase().replace(/[^\w]/g, '');
+            const variants = [slug, slugNoHyphen, compactTitle];
+
+            variants.forEach(v => {
+                if (!v) return;
+                exts.forEach(ext => {
+                    if (card.dataset.coverLoaded) return;
+                    const path = normalizeAssetPath(`assets/images/games/${v}.${ext}`);
+                    const img = new Image();
+                    img.onload = () => {
+                        if (!card.dataset.coverLoaded) {
+                            card.style.backgroundImage = `url('${path}')`;
+                            card.dataset.coverLoaded = 'true';
+                        }
+                    };
+                    img.onerror = () => { /* try next */ };
+                    img.src = path;
+                });
+            });
+        });
+    }
+
+// Initialize handlers once DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => { initUsername(); initProfile(); initLibraryHandlers(); applyGameCovers(); applyLastPlayed(); initPowerOffHandler(); });
+} else {
+    initUsername(); initProfile(); initLibraryHandlers(); applyGameCovers(); applyLastPlayed(); initPowerOffHandler();
+}
+
+// --- Username prompt ---
+function initUsername() {
+    const stored = localStorage.getItem('xboxUsername');
+    const usernameEl = document.getElementById('username');
+    const overlay = document.getElementById('usernameOverlay');
+    const input = document.getElementById('usernameInput');
+    const saveBtn = document.getElementById('usernameSave');
+
+    const applyName = (name) => {
+        if (usernameEl) usernameEl.textContent = name;
+    };
+
+    if (stored) {
+        applyName(stored);
+        if (overlay) overlay.setAttribute('aria-hidden', 'true');
+        return;
+    }
+
+    if (!overlay || !input || !saveBtn) return;
+    overlay.setAttribute('aria-hidden', 'false');
+    input.focus();
+
+    const save = () => {
+        const val = input.value.trim();
+        if (!val) return;
+        localStorage.setItem('xboxUsername', val);
+        applyName(val);
+        overlay.setAttribute('aria-hidden', 'true');
+    };
+
+    saveBtn.addEventListener('click', save);
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') save(); });
+}
+
+// --- Profile Settings ---
+function showProfileSettings() {
+    const overlay = document.getElementById('profileOverlay');
+    const usernameInput = document.getElementById('profileUsernameInput');
+    const saveBtn = document.getElementById('profileSave');
+
+    if (!overlay || !usernameInput || !saveBtn) return;
+
+    // Pre-fill current username
+    const currentUsername = localStorage.getItem('xboxUsername') || '';
+    usernameInput.value = currentUsername;
+
+    overlay.setAttribute('aria-hidden', 'false');
+    usernameInput.focus();
+
+    const save = () => {
+        const usernameVal = usernameInput.value.trim();
+        const fileInput = document.getElementById('profilePictureInput');
+        let profilePicData = null;
+
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                profilePicData = e.target.result;
+                localStorage.setItem('xboxProfilePic', profilePicData);
+                updateProfileDisplay(usernameVal, profilePicData);
+                overlay.setAttribute('aria-hidden', 'true');
+            };
+            reader.readAsDataURL(file);
+            return; // Wait for file to load
+        }
+
+        // No new picture, just update username
+        if (usernameVal) {
+            localStorage.setItem('xboxUsername', usernameVal);
+            updateProfileDisplay(usernameVal, localStorage.getItem('xboxProfilePic'));
+        }
+        overlay.setAttribute('aria-hidden', 'true');
+    };
+
+    saveBtn.addEventListener('click', save);
+    usernameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') save(); });
+}
+
+function closeProfileSettings() {
+    const overlay = document.getElementById('profileOverlay');
+    if (overlay) overlay.setAttribute('aria-hidden', 'true');
+}
+
+function updateProfileDisplay(username, profilePicData) {
+    const usernameEl = document.getElementById('username');
+    const profileImg = document.querySelector('.user img');
+
+    if (usernameEl && username) usernameEl.textContent = username;
+    if (profileImg && profilePicData) profileImg.src = profilePicData;
+}
+
+// Initialize profile picture on load
+function initProfile() {
+    const storedPic = localStorage.getItem('xboxProfilePic');
+    const profileImg = document.querySelector('.user img');
+    if (storedPic && profileImg) {
+        profileImg.src = storedPic;
+    }
+}
+
+// Navigate to off.html when powering off, and allow keyboard activation
+function powerOff() {
+    // Use a relative path to work both when served and when opened via file://
+    try { console.log('powerOff() called'); } catch (e) {}
+    window.location.href = 'off.html';
+}
+
+function initPowerOffHandler() {
+    const powerTile = document.querySelector('.square.eight');
+    if (!powerTile) return;
+    powerTile.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            powerOff();
+        }
+    });
+    // Also add a programmatic click handler in case inline handlers are blocked
+    powerTile.addEventListener('click', (e) => { powerOff(); });
+}
+
+
+
+// Ensure the function is available on the global `window` for inline handlers
+try { window.powerOff = powerOff; window.initPowerOffHandler = initPowerOffHandler; window.showProfileSettings = showProfileSettings; window.closeProfileSettings = closeProfileSettings; } catch (e) {}
+
+
+    </script>
+    
+    <script>
+    // Load navbar tagline from external GitHub repository
+    fetch('https://raw.githubusercontent.com/thecheetoman/GSPasscode/main/quote.txt')
+        .then(response => response.text())
+        .then(text => {
+            const taglineElement = document.getElementById('navbarTagline');
+            if(taglineElement){
+                taglineElement.innerHTML = text.split('\n').join('<br>');
+            }
+        })
+        .catch(error => {
+            console.log('Could not load navbar tagline from external repository');
+        });
+    </script>
+    
+    <script>
+    // Automatic version check on load
+    document.addEventListener('DOMContentLoaded', function(){
+        const CLIENT_KEY = 'fake_xbox_client_version';
+        const DEFAULT_CLIENT = '1.0.0';
+
+        async function checkVersion(){
+            try{
+                const r = await fetch('https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/version.json', {cache: 'no-store'});
+                if(!r.ok) return;
+                const j = await r.json();
+                const server = j.version;
+                const client = localStorage.getItem(CLIENT_KEY) || DEFAULT_CLIENT;
+                if(client !== server){
+                    if(location.pathname !== '/assets/fake-xbox/xbox-update.html'){
+                        const ret = '/';
+                        location.href = 'https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/assets/fake-xbox/xbox-update.html?return=' + encodeURIComponent(ret) + '&autostart=1';
+                    }
+                    return;
+                }
+
+                if(localStorage.getItem('show_changelog_after_update') === '1'){
+                    localStorage.removeItem('show_changelog_after_update');
+                    setTimeout(()=>{ if(typeof showChangelog === 'function') showChangelog(); }, 300);
+                }
+            }catch(e){
+                console.warn('Version check failed', e);
+            }
+        }
+
+        checkVersion();
+    });
+    </script>
+    
+    <script>
+    function showChangelog(){
+        const modal = document.getElementById('changelogModal');
+        const content = document.getElementById('changelogContent');
+        
+        fetch('https://cdn.jsdelivr.net/gh/googoogoob/googoogoob.github.io@latest/changelog.json')
+            .then(response => response.json())
+            .then(commits => {
+                content.innerHTML = '';
+                commits.forEach(commit => {
+                    const entry = document.createElement('div');
+                    entry.className = 'changelog-entry';
+                    entry.innerHTML = <div class="changelog-date">\</div><div class="changelog-message">\</div>;
+                    content.appendChild(entry);
+                });
+                modal.classList.add('show');
+            })
+            .catch(error => {
+                content.innerHTML = '<p>Changelog not available.</p>';
+                modal.classList.add('show');
+            });
+    }
+    
+    function closeChangelog(){
+        document.getElementById('changelogModal').classList.remove('show');
+    }
+    
+    document.addEventListener('DOMContentLoaded', function(){
+        const modal = document.getElementById('changelogModal');
+        modal.addEventListener('click', function(e){
+            if(e.target === modal){
+                closeChangelog();
+            }
+        });
+    });
+    </script>
+    
+    <script>
+    function showDiscord(){
+        document.getElementById('discordModal').classList.add('show');
+    }
+    
+    function closeDiscord(){
+        document.getElementById('discordModal').classList.remove('show');
+    }
+    
+    document.addEventListener('DOMContentLoaded', function(){
+        document.getElementById('discordButton').onclick = showDiscord;
+        
+        const modal = document.getElementById('discordModal');
+        modal.addEventListener('click', function(e){
+            if(e.target === modal){
+                closeDiscord();
+            }
+        });
+    });
+    </script>
+    
+    <script>
+    (function(){
+        function startSequence(){
+            var overlay = document.getElementById('xboxStartupOverlay');
+            if(!overlay) return;
+
+            var t0 = 40;
+            var sphereAt = 300;
+            var letterAt = 800;
+            var goobAt = 1200;
+            var fadeOutAt = 3200;
+
+            setTimeout(function(){ overlay.classList.add('phase-sphere'); }, t0 + sphereAt);
+            setTimeout(function(){ overlay.classList.add('phase-letter'); }, t0 + letterAt);
+            setTimeout(function(){ overlay.classList.add('phase-goob'); }, t0 + goobAt);
+
+            setTimeout(function(){ overlay.classList.add('hide'); overlay.setAttribute('aria-hidden','true');
+                setTimeout(function(){ if(overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 700);
+            }, fadeOutAt);
+        }
+
+        if(document.readyState === 'complete' || document.readyState === 'interactive'){
+            setTimeout(startSequence, 60);
+        } else {
+            document.addEventListener('DOMContentLoaded', startSequence);
+        }
+    })();
+    </script>
+    
+    <script>
+    alert("BTW in game click shift+tab to be able to return to menu!")
+    </script>
+</body>
+</html>
