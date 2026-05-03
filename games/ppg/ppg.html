@@ -1,66 +1,87 @@
+
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Goob 360: People Playground</title>
-    <link rel="shortcut icon" href="../gfavicon.png">
+    <title>people playground.</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
     <link rel="manifest" href="manifest.webmanifest">
-  </head>
-   <style>
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-            background: #231F20;
-        }
-        #unity-container {
-            width: 100%;
-            height: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-        }
+    <style>
+      #xp-loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 260px;
+        background: #ece9d8;
+        border: 2px solid #3a6ea5;
+        box-shadow: 0 0 0 3px #ffffff inset;
+        font-family: Tahoma, sans-serif;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      #xp-loader-title {
+        background: linear-gradient(#2b74c7, #1a4a9c);
+        color: white;
+        padding: 4px 8px;
+        font-size: 14px;
+      }
+      #xp-loader-bar {
+        width: 100%;
+        height: 18px;
+        border: 1px solid #3a6ea5;
+        background: white;
+        overflow: hidden;
+      }
+      #xp-loader-fill {
+        width: 0%;
+        height: 100%;
+        background: #4a8be0;
+      }
+      #unity-loading-bar {
+        display: none;
+      }
     </style>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZRPZ3P6WM2"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-ZRPZ3P6WM2');
-</script>
+  </head>
   <body>
-    <div id="unity-container">
-      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
-        </div>
-      </div>
-      <div id="unity-warning"> </div>
+    <div id="xp-loader">
+      <div id="xp-loader-title">Loading..</div>
+      <div id="xp-loader-bar"><div id="xp-loader-fill"></div></div>
+      <div id="xp-loader-text">0%</div>
     </div>
+
+    <div id="unity-container">
+      <canvas id="unity-canvas" width="960" height="600" tabindex="-1"></canvas>
+      <div id="unity-warning"></div>
+    </div>
+    <script>
+      window.fileMergerConfig = {
+        files: [
+          { name: 'pggbog.data', parts: 7 },
+          { name: 'pggbog.wasm', parts: 3 }
+        ],
+        basePath: 'Build/',
+        debug: true
+      };  
+  </script>
+  <script src="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/merge.js"></script>
     <script>
       window.addEventListener("load", function () {
         if ("serviceWorker" in navigator) {
           navigator.serviceWorker.register("ServiceWorker.js");
         }
       });
-      var container = document.querySelector("#unity-container");
+
       var canvas = document.querySelector("#unity-canvas");
-      var loadingBar = document.querySelector("#unity-loading-bar");
-      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var xpBox = document.querySelector("#xp-loader");
+      var xpFill = document.querySelector("#xp-loader-fill");
+      var xpText = document.querySelector("#xp-loader-text");
       var warningBanner = document.querySelector("#unity-warning");
-      function doNothing() { }
-      canvas.requestFullscreen = doNothing;
-      canvas.webkitRequestFullscreen = doNothing;
-      canvas.mozRequestFullScreen = doNothing;
-      canvas.msRequestFullscreen = doNothing;
+
       function unityShowBanner(msg, type) {
         function updateBannerVisibility() {
           warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
@@ -78,18 +99,20 @@
         }
         updateBannerVisibility();
       }
+
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/pggbog.loader.js";
       var config = {
-        dataUrl: "https://media.githubusercontent.com/media/googoogoob/People-Playground/refs/heads/main/Build/pggbog.data",
+        dataUrl: buildUrl + "/pggbog.data",
         frameworkUrl: buildUrl + "/pggbog.framework.js",
         codeUrl: buildUrl + "/pggbog.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Studio Minus",
         productName: "People Playground",
         productVersion: "1",
-        showBanner: unityShowBanner,
+        showBanner: unityShowBanner
       };
+
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         var meta = document.createElement('meta');
         meta.name = 'viewport';
@@ -97,15 +120,15 @@
         document.getElementsByTagName('head')[0].appendChild(meta);
       }
 
-      loadingBar.style.display = "block";
-
       var script = document.createElement("script");
       script.src = loaderUrl;
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
+          var p = Math.round(progress * 100);
+          xpFill.style.width = p + "%";
+          xpText.textContent = p + "%";
         }).then((unityInstance) => {
-          loadingBar.style.display = "none";
+          xpBox.style.display = "none";
         }).catch((message) => {
           alert(message);
         });
