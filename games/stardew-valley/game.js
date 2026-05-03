@@ -44,7 +44,7 @@ async function getTar(baseName, label) {
 	let received = 0;
 
 	for (let i = 0; i < chunkCount; i++) {
-		const url = `${baseName}${String(i).padStart(2, "0")}`;
+		const url = `${baseName}.part${String(i).padStart(2, "0")}`;
 		const res = await fetch(url);
 		if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
 		const reader = res.body.getReader();

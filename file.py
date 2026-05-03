@@ -6,13 +6,14 @@ THRESHOLD_BYTES = THRESHOLD_MB * 1024 * 1024
 def find_large_files(directory="."):
     large_files = []
 
-    for filename in os.listdir(directory):
-        filepath = os.path.join(directory, filename)
-        if os.path.isfile(filepath):
+    for root, _, files in os.walk(directory):
+        for filename in files:
+            filepath = os.path.join(root, filename)
             size_bytes = os.path.getsize(filepath)
             if size_bytes > THRESHOLD_BYTES:
                 size_mb = size_bytes / (1024 * 1024)
-                large_files.append((filename, size_mb))
+                rel_path = os.path.relpath(filepath, directory)
+                large_files.append((rel_path, size_mb))
 
     return large_files
 
