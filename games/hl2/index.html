@@ -2,6 +2,13 @@
 <html lang="en-us">
 
 <head>
+    <script>
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(r => r.unregister());
+    // Reload once to re-register fresh
+    if (regs.length) location.reload();
+  });
+</script>
     <script src="coi-serviceworker.js"></script>
     <meta charset="utf-8" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />

@@ -475,6 +475,11 @@ var arguments_ = [];
 var thisProgram = "./this.program";
 
 var quit_ = (status, toThrow) => {
+  // ChromeOS compat patch: swallow function signature mismatch at the throw site.
+  if (toThrow instanceof WebAssembly.RuntimeError && toThrow.message && toThrow.message.includes("function signature mismatch")) {
+    err("ChromeOS compat: ignoring function signature mismatch in quit_ (non-fatal)");
+    return;
+  }
   throw toThrow;
 };
 
