@@ -1791,15 +1791,6 @@ var PThread = {
         message = `Pthread ${ptrToString(worker.pthread_ptr)} sent an error!`;
       }
       err(`${message} ${e.filename}:${e.lineno}: ${e.message}`);
-      // ChromeOS compat patch: swallow function signature mismatch errors from pthreads.
-      // ChromeOS enforces WASM indirect call signature validation more strictly than
-      // Windows Chrome, causing a crash during the HEV suit scripted sequence.
-      // Swallowing this lets the game survive — the affected pthread exits but the
-      // main thread and other threads continue running.
-      if (e.message && e.message.includes("function signature mismatch")) {
-        err("ChromeOS compat: ignoring function signature mismatch in pthread (non-fatal)");
-        return;
-      }
       throw e;
     };
     if (ENVIRONMENT_IS_NODE) {
