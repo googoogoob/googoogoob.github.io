@@ -2,9 +2,6 @@
 <html lang="en-us">
 
 <head>
-    <script>
-        alert("takes a while to load and when loading a map, its kinda slow")
-    </script>
     <script src="coi-serviceworker.js"></script>
     <meta charset="utf-8" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -32,34 +29,225 @@
             background-color: black;
         }
 
-        /* Hidden UI elements kept for Module compatibility */
-        #spinner,
-        #status,
-        #progress,
-        #controls,
-        #output,
-        #emscripten_logo {
+        /* ── Loading overlay ── */
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: #111;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            transition: opacity 0.6s ease;
+            font-family: 'Courier New', monospace;
+            color: #c8a96e;
+        }
+
+        #loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #loading-logo {
+            width: 280px;
+            margin-bottom: 32px;
+            opacity: 0.9;
+        }
+
+        #loading-status {
+            font-size: 13px;
+            margin-bottom: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        #loading-bar-wrap {
+            width: 320px;
+            height: 5px;
+            background: #2a2a2a;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        #loading-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: #c8a96e;
+            transition: width 0.2s ease;
+        }
+
+        #loading-warn {
+            margin-top: 22px;
+            font-size: 11px;
+            color: #555;
+            max-width: 320px;
+            text-align: center;
+            line-height: 1.7;
+        }
+
+        /* Hidden compat elements */
+        #spinner, #status, #progress, #controls, #output, #emscripten_logo {
             display: none !important;
         }
     </style>
+    
 </head>
 
-<body> <a href="http://emscripten.org" style="display:none"> <img id="emscripten_logo" src="assets/hl2.png" /> </a>
-    <div class="spinner" id="spinner"></div>
-    <div id="status"></div> <span id="controls"></span> <progress value="0" max="100" id="progress"
-        hidden="1"></progress> <textarea id="output" rows="8"></textarea> <canvas class="emscripten" id="canvas"
-        oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
-    <script
-        type="text/javascript">			var statusElement = document.getElementById("status"); var progressElement = document.getElementById("progress"); var spinnerElement = document.getElementById("spinner"); var canvasElement = document.getElementById("canvas"); var outputElement = document.getElementById("output"); if (outputElement) outputElement.value = ""; canvasElement.addEventListener("webglcontextlost", (e) => { alert("WebGL context lost. You will need to reload the page."); e.preventDefault(); }, false,); canvasElement.widthNative = screen.availWidth; canvasElement.heightNative = screen.availHeight; var Module = { print(...args) { console.log(...args); if (outputElement) { var text = args.join(" "); outputElement.value += text + "\n"; outputElement.scrollTop = outputElement.scrollHeight; } }, canvas: canvasElement, setStatus(text) { Module.setStatus.last ??= { time: Date.now(), text: "" }; if (text === Module.setStatus.last.text) return; var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/); var now = Date.now(); if (m && now - Module.setStatus.last.time < 30) return; Module.setStatus.last.time = now; Module.setStatus.last.text = text; if (m) { progressElement.value = parseInt(m[2]) * 100; progressElement.max = parseInt(m[4]) * 100; } else { progressElement.value = null; progressElement.max = null; } }, totalDependencies: 0, monitorRunDependencies(left) { this.totalDependencies = Math.max(this.totalDependencies, left); Module.setStatus(left ? "Preparing... (" + (this.totalDependencies - left) + "/" + this.totalDependencies + ")" : "All downloads complete.",); }, }; Module.setStatus("Downloading..."); window.onerror = (event) => { Module.setStatus("Exception thrown, see JavaScript console"); Module.setStatus = (text) => { if (text) console.error("[post-exception status] " + text); }; };		</script>
-    <script async type="text/javascript" src="hl2_launcher.js"></script>
-    script async src="https://www.googletagmanager.com/gtag/js?id=G-ZRPZ3P6WM2"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+<body>
 
-  gtag('config', 'G-ZRPZ3P6WM2');
+    <!-- Loading overlay -->
+    <div id="loading-overlay">
+        <img id="loading-logo" src="assets/hl2.png" alt="Half-Life 2" />
+        <div id="loading-status">Initializing...</div>
+        <div id="loading-bar-wrap">
+            <div id="loading-bar-fill"></div>
+        </div>
+        <div id="loading-warn">
+            Takes a while to load.<br>
+            Map loading is also slow — this is normal.
+        </div>
+    </div>
+
+    <!-- Hidden compat elements Emscripten expects to exist -->
+    <a href="http://emscripten.org" style="display:none"><img id="emscripten_logo" src="assets/hl2.png" /></a>
+    <div class="spinner" id="spinner"></div>
+    <div id="status"></div>
+    <span id="controls"></span>
+    <progress value="0" max="100" id="progress" hidden="1"></progress>
+    <textarea id="output" rows="8"></textarea>
+
+    <!-- Game canvas -->
+    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+
+    <script type="text/javascript">
+        var statusElement    = document.getElementById("status");
+        var progressElement  = document.getElementById("progress");
+        var spinnerElement   = document.getElementById("spinner");
+        var canvasElement    = document.getElementById("canvas");
+        var outputElement    = document.getElementById("output");
+
+        // Overlay elements
+        var overlayEl        = document.getElementById("loading-overlay");
+        var statusTextEl     = document.getElementById("loading-status");
+        var barFillEl        = document.getElementById("loading-bar-fill");
+
+        if (outputElement) outputElement.value = "";
+
+        canvasElement.addEventListener("webglcontextlost", (e) => {
+            alert("WebGL context lost. You will need to reload the page.");
+            e.preventDefault();
+        }, false);
+
+        canvasElement.widthNative  = screen.availWidth;
+        canvasElement.heightNative = screen.availHeight;
+
+        var Module = {
+            print(...args) {
+                console.log(...args);
+                if (outputElement) {
+                    var text = args.join(" ");
+                    outputElement.value += text + "\n";
+                    outputElement.scrollTop = outputElement.scrollHeight;
+                }
+            },
+
+            canvas: canvasElement,
+
+            // ── THIS IS Module.setStatus ──
+            setStatus(text) {
+                Module.setStatus.last ??= { time: Date.now(), text: "" };
+                if (text === Module.setStatus.last.text) return;
+
+                var m   = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+                var now = Date.now();
+                if (m && now - Module.setStatus.last.time < 30) return;
+
+                Module.setStatus.last.time = now;
+                Module.setStatus.last.text = text;
+
+                if (m) {
+                    // Progress update — e.g. "Downloading... (2/5)"
+                    var pct = (parseInt(m[2]) / parseInt(m[4])) * 100;
+                    if (barFillEl)   barFillEl.style.width = pct + "%";
+                    if (statusTextEl) statusTextEl.textContent = m[1].trim();
+                    progressElement.value = parseInt(m[2]) * 100;
+                    progressElement.max   = parseInt(m[4]) * 100;
+                } else {
+                    // Plain status text
+                    progressElement.value = null;
+                    progressElement.max   = null;
+                    if (statusTextEl) statusTextEl.textContent = text || "Ready";
+
+                    if (!text) {
+                        // Empty string = all done loading
+                        if (barFillEl) barFillEl.style.width = "100%";
+                        setTimeout(() => { if (overlayEl) overlayEl.classList.add("hidden"); }, 300);
+                        setTimeout(() => { if (overlayEl) overlayEl.remove(); }, 1000);
+                    }
+                }
+            },
+
+            totalDependencies: 0,
+
+            monitorRunDependencies(left) {
+                this.totalDependencies = Math.max(this.totalDependencies, left);
+                Module.setStatus(
+                    left
+                        ? "Preparing... (" + (this.totalDependencies - left) + "/" + this.totalDependencies + ")"
+                        : "All downloads complete."
+                );
+            },
+        };
+
+        Module.setStatus("Downloading...");
+
+        window.onerror = (event) => {
+            Module.setStatus("Exception thrown, see JavaScript console");
+            Module.setStatus = (text) => {
+                if (text) console.error("[post-exception status] " + text);
+            };
+        };
+    </script>
+
+    <script async type="text/javascript" src="hl2_launcher.js"></script>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZRPZ3P6WM2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-ZRPZ3P6WM2');
+    </script>
+<div id="crash-log" style="display:none; position:fixed; inset:0; background:#111;
+     color:#0f0; font:12px monospace; padding:20px; z-index:99999; overflow:auto;
+     white-space:pre-wrap;"></div>
+
+<script>
+    // Show last session log on screen (no console needed)
+    const prevLog = localStorage.getItem("hl2_log");
+    if (prevLog) {
+        const box = document.getElementById("crash-log");
+        box.style.display = "block";
+        box.textContent = "=== LAST SESSION LOG ===\n  FOR BUG LOOKIN N SHI PLS IGNORE";
+        JSON.parse(prevLog).forEach(e =>
+            box.textContent += new Date(e.t).toLocaleTimeString() + "  " + e.msg + "\n"
+        );
+        box.textContent += "\n(click to dismiss)";
+        box.onclick = () => { box.style.display = "none"; localStorage.removeItem("hl2_log"); };
+    }
+
+    // Keep logging status updates
+    const _orig = Module.setStatus.bind(Module);
+    Module.setStatus = function(text) {
+        if (text) {
+            const log = JSON.parse(localStorage.getItem("hl2_log") || "[]");
+            log.push({ t: Date.now(), msg: text });
+            if (log.length > 50) log.shift();
+            localStorage.setItem("hl2_log", JSON.stringify(log));
+        }
+        _orig(text);
+    };
 </script>
 </body>
-
 </html>
