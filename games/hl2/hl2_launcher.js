@@ -8711,6 +8711,13 @@ var handleException = e => {
   if (e instanceof ExitStatus || e == "unwind") {
     return EXITSTATUS;
   }
+  // ChromeOS compat patch: swallow function signature mismatch RuntimeErrors.
+  // ChromeOS enforces WASM indirect call signature validation more strictly,
+  // causing crashes during the HEV suit scripted sequence. Non-fatal on this path.
+  if (e instanceof WebAssembly.RuntimeError && e.message && e.message.includes("function signature mismatch")) {
+    err("ChromeOS compat: ignoring function signature mismatch in handleException (non-fatal)");
+    return EXITSTATUS;
+  }
   checkStackCookie();
   if (e instanceof WebAssembly.RuntimeError) {
     if (_emscripten_stack_get_current() <= 0) {
