@@ -1,11 +1,11 @@
 {
   "mainAssemblyName": "stardew",
   "resources": {
-    "hash": "sha256-d7Mbm/apYGHzVqan2OnSnfDtzaXqvRAKS5pp8Q6A4NU=",
+    "hash": "sha256-GhQiOAsGEHfLUq/sdQ/ohnOzZvRI/1nGIyxZYp5smwg=",
     "fingerprinting": {
       "FNA.19mbt6y4zi.wasm": "FNA.wasm",
       "mscorlib.emnk2ck1oc.wasm": "mscorlib.wasm",
-      "stardew.s7rkdvzs7p.wasm": "stardew.wasm",
+      "stardew.mlmc2d2oiq.wasm": "stardew.wasm",
       "System.Collections.Concurrent.qlhbjf9bos.wasm": "System.Collections.Concurrent.wasm",
       "System.Collections.NonGeneric.5ryvt8698k.wasm": "System.Collections.NonGeneric.wasm",
       "System.Collections.Specialized.tmjmwnow7m.wasm": "System.Collections.Specialized.wasm",
@@ -33,7 +33,7 @@
       "System.Net.WebHeaderCollection.e4ybain77t.wasm": "System.Net.WebHeaderCollection.wasm",
       "System.Numerics.o4368phbk9.wasm": "System.Numerics.wasm",
       "System.ObjectModel.t7b51rllx3.wasm": "System.ObjectModel.wasm",
-      "System.Private.CoreLib.87dtt8o4ks.wasm": "System.Private.CoreLib.wasm",
+      "System.Private.CoreLib.i8z3vksxlw.wasm": "System.Private.CoreLib.wasm",
       "System.Private.Uri.d0kivwxqf4.wasm": "System.Private.Uri.wasm",
       "System.Private.Xml.1op9gajsl5.wasm": "System.Private.Xml.wasm",
       "System.Reflection.Emit.Lightweight.6xjxglsw9x.wasm": "System.Reflection.Emit.Lightweight.wasm",
@@ -50,8 +50,8 @@
       "System.dqfxtvioy0.wasm": "System.wasm",
       "System.Xml.ReaderWriter.jdtq43bqu8.wasm": "System.Xml.ReaderWriter.wasm",
       "System.Xml.XmlSerializer.e5uisw7343.wasm": "System.Xml.XmlSerializer.wasm",
-      "dotnet.native.60ttd2mb1t.js": "dotnet.native.js",
-      "dotnet.native.r6r8808dt3.wasm": "dotnet.native.wasm",
+      "dotnet.native.vgmtf3jg2i.js": "dotnet.native.js",
+      "dotnet.native.k0dnmixusv.wasm": "dotnet.native.wasm",
       "dotnet.js": "dotnet.js",
       "dotnet.runtime.2hocyfcbj2.js": "dotnet.runtime.js",
       "icudt_CJK.tjcz0u77k5.dat": "icudt_CJK.dat",
@@ -59,13 +59,13 @@
       "icudt_no_CJK.lfu7j35m59.dat": "icudt_no_CJK.dat"
     },
     "jsModuleNative": {
-      "dotnet.native.60ttd2mb1t.js": "sha256-6jLL+8pTucixiPAlQvf1B/MiQyqzXluHl3nin61+u+Y="
+      "dotnet.native.vgmtf3jg2i.js": "sha256-AV6eDey2IjX5HV6d1CCR6/XMHT1/HBqLsZ7kNUMF3I0="
     },
     "jsModuleRuntime": {
       "dotnet.runtime.2hocyfcbj2.js": "sha256-5oRcSUQSLbUYyq9jPgwB6domrDHYrvLX+53QxY+0y48="
     },
     "wasmNative": {
-      "dotnet.native.r6r8808dt3.wasm": "sha256-XfxhcbSh+TT9aj1wPJ1NUvHu879lf00jvNZC/sNRvso="
+      "dotnet.native.k0dnmixusv.wasm": "sha256-pI9IvHEolf9ConXk6NatPw/GzXpSSX35dnrCgGpkIck="
     },
     "icu": {
       "icudt_CJK.tjcz0u77k5.dat": "sha256-SZLtQnRc0JkwqHab0VUVP7T3uBPSeYzxzDnpxPpUnHk=",
@@ -75,7 +75,7 @@
     "coreAssembly": {
       "FNA.19mbt6y4zi.wasm": "sha256-m4XcMqUo4pWqXq0i2IazkU3mITysD88fW9BjITX9Y2Y=",
       "mscorlib.emnk2ck1oc.wasm": "sha256-atlaFs3cFJnW17UMIxHmoy8Rb9t1erctMNRLA4Q7Wes=",
-      "stardew.s7rkdvzs7p.wasm": "sha256-yP+uEZncsWFGlcl1vu+vLT+s71pPpYb48QlWtbIISgE=",
+      "stardew.mlmc2d2oiq.wasm": "sha256-arN0rWPJVIlnlfUPXvcLUkYrOGhIvx83W3wzXLVnsRM=",
       "System.Collections.Concurrent.qlhbjf9bos.wasm": "sha256-3gybsbHRQdhZJ4irswh3OTydADNmT+dkbCvLkBfoDi8=",
       "System.Collections.NonGeneric.5ryvt8698k.wasm": "sha256-T0GqoT4SV0S3j2ne4o7Xshw6pqADk2KeQqo9aAsIOVk=",
       "System.Collections.Specialized.tmjmwnow7m.wasm": "sha256-5WiJtPmvWyphcLAVQ6eqcxqsMdir1/Lb1qfjSOj/HL0=",
@@ -103,7 +103,7 @@
       "System.Net.WebHeaderCollection.e4ybain77t.wasm": "sha256-foMhn8zVwBVsVm3tdE7PzI1AVjdC2OgEALUp8JzgL8k=",
       "System.Numerics.o4368phbk9.wasm": "sha256-WDGA0NHBScFKopiMNclFJxADW8Ly3D+r4NubPiq3NKA=",
       "System.ObjectModel.t7b51rllx3.wasm": "sha256-97puVP49KOaw83du6a6rUL24lAmc/kw7g1M/r5vbTX0=",
-      "System.Private.CoreLib.87dtt8o4ks.wasm": "sha256-7Doom4vwl+qozU5I36h71tZ0u9wS9y64FXIsI2qdvVQ=",
+      "System.Private.CoreLib.i8z3vksxlw.wasm": "sha256-IiRjFR0nMEtIz3sDi14TAYGhp3l53x6XA5c164gvCfI=",
       "System.Private.Uri.d0kivwxqf4.wasm": "sha256-MzsRRZMHloXk4EB2qeh6gbZcI2QPRXmSsjGfBFoo1m4=",
       "System.Private.Xml.1op9gajsl5.wasm": "sha256-MZKRQWJA8aYXt8KaGv5MV2HgiXbJTRoeSjVsHGkc5Jc=",
       "System.Reflection.Emit.Lightweight.6xjxglsw9x.wasm": "sha256-Gid8ORv0tSY7i0YbIV4Uj/om+4LKxoSiv3SWya+jvNI=",
