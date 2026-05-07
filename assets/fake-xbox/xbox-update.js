@@ -34,16 +34,11 @@
     if(logo) logo.src = SITE_FAVICON;
 
     showOverlay();
-    status.textContent = 'Preparing update…';
+    status.textContent = 'gime a sec yo';
     progressBar.style.width = '2%';
 
     const steps = [
-      {pct:12, text:'Verifying update package…'},
-      {pct:34, text:'Preparing files…'},
-      {pct:58, text:'Installing updates…'},
-      {pct:80, text:'Verifying installed update'},
-      {pct:98, text:'Finalizing'},
-      {pct:100, text:'Restarting...'}
+      {pct:50, text:'Your device has been successfully updated'},
     ];
 
     let i = 0;
