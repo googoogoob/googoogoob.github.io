@@ -1,0 +1,269 @@
+const $ = (s, e = document.body) => e.querySelector(s);
+const $$ = (s, e = document.body) => [...e.querySelectorAll(s)];
+const wait = (ms) => new Promise((done) => setTimeout(done, ms));
+var sharecopy = "init";
+
+const dom = (tag, attrs, ...children) => {
+  const el = document.createElement(tag);
+  if (attrs instanceof HTMLElement) {
+    children.unshift(attrs);
+  } else {
+    Object.entries(attrs).forEach(([key, value]) => {
+      if (key === "class" && value instanceof Array) {
+        value = value.join(" ");
+      }
+      el.setAttribute(key, value);
+    });
+  }
+  el.append(...children.flat());
+  return el;
+};
+
+const KEYS = ["QWERTYUIOP", "ASDFGHJKL", "+ZXCVBNM-"];
+const PRETTY_KEYS = {
+  "+": "Enter",
+  "-": "Del",
+};
+
+const ROUNDS = 6;
+const LENGTH = 5;
+
+const dictionaryRequest = fetch("./dictionary.txt").then((r) => r.text());
+const board = $(".board");
+const keyboard = $(".keyboard");
+
+window.onload = () => init().catch((e) => console.error(e));
+
+async function init() {
+  const board = generateBoard();
+  const kb = generateKeyboard();
+
+  const words = (await dictionaryRequest)
+    .split(/\r?\n/)
+    .map((word) => word.trim().toUpperCase())
+    .filter(Boolean);
+  const word = "HORSE";
+
+  await startGame({ word, kb, board, words });
+}
+
+async function animate(el, name, ms) {
+  el.style.animation = `${ms}ms ${name}`;
+  await wait(ms * 1.2);
+  el.style.animation = "none";
+}
+
+async function startGame({ word, kb, board, words }) {
+  let guesses = [];
+  const solution = word.split("");
+  //get date, make string
+  let today = Date(Date.now());
+  let todayShort = formatDate(today);
+  //meake header for share data
+  sharecopy = 
+      'wordle\n' + 
+      todayShort + '\n';
+  //start of game
+  let round = 0;
+  for (round = 0; round < ROUNDS; round++) {
+    const guess = await collectGuess({ kb, board, round, words });
+    const hints = guess.map((letter, i) => {
+      let pos = solution.indexOf(letter);
+      if (solution[i] === letter) {
+        return "correct";
+      } else if (pos > -1) {
+        return "close";
+      }
+      return "wrong";
+    });
+    sharecopy = sharecopy + addtoshare(hints);
+    board.revealHint(round, hints);
+    kb.revealHint(guess, hints);
+    if (guess.join("") === word) {
+      sharecopy = sharecopy + "sigma"
+      $(".feedback").innerHTML = `
+        <div id="response">Nice Work!</div>
+        <div><button type="button" class="button--share" id="copybutton">Copy results</button></div>
+        <textarea cols="50" id="sharebox"></textarea>
+        `;
+      document.getElementById("copybutton").onclick = function() { copytoshare(sharecopy);};
+      updateSharebox(sharecopy);
+      return;
+    }
+  }
+  sharecopy = sharecopy + "https://cabletwo.net/horsle"
+  $(".feedback").innerHTML = `
+  <div>GAME OVER<br>Correct Answer was: ${word}</div>
+  <div><button type="button" class="button--share" id="copybutton">Copy results</button></div>
+  <textarea cols="50" id="sharebox"></textarea>
+        `;
+  document.getElementById("copybutton").onclick = function() { copytoshare(sharecopy);};
+  updateSharebox(sharecopy);
+}
+
+function collectGuess({ kb, board, round, words }) {
+  return new Promise((submit) => {
+    let letters = [];
+    async function keyHandler(key) {
+      if (key === "+") {
+        if (letters.length === 5) {
+          const currentGuess = letters.join("");
+          const guessIsValid = words.includes(currentGuess);
+          if (!guessIsValid) {
+            $(".feedback").innerText = "Invalid Word";
+            await animate($$(".round")[round], "shake", 800);
+          } else {
+            $(".feedback").innerText = "";
+            kb.off(keyHandler);
+            document.removeEventListener("keydown", keyDownHandler);
+            submit(letters);
+          }
+        }
+      } else if (key === "-") {
+        if (letters.length > 0) {
+          letters.pop();
+          board.updateGuess(round, letters);
+        }
+      } else {
+        if (letters.length < 5) {
+          letters.push(key);
+          board.updateGuess(round, letters);
+        }
+      }
+    }
+
+    function keyDownHandler(e) {
+      const key = e.key.toLowerCase();
+      if (key === "enter") {
+        keyHandler("+");
+      }
+      if (key === "backspace") {
+        keyHandler("-");
+      }
+      const upperKey = key.toUpperCase();
+      if (KEYS.some((k) => k.includes(upperKey))) {
+        keyHandler(upperKey);
+      }
+    }
+
+    kb.on(keyHandler);
+    document.addEventListener("keydown", keyDownHandler);
+  });
+}
+
+function generateBoard() {
+  const rows = [];
+  for (let i = 0; i < ROUNDS; i++) {
+    const row = dom("div", {
+      class: "round",
+      "data-round": i,
+    });
+    for (let j = 0; j < LENGTH; j++) {
+      row.append(
+        dom("div", {
+          class: "letter",
+          "data-pos": j,
+        })
+      );
+    }
+    board.append(row);
+  }
+  return {
+    updateGuess: (round, letters) => {
+      const blanks = $$(".letter", $$(".round")[round]);
+      blanks.forEach((b, i) => (b.innerText = letters[i] || ""));
+    },
+    revealHint: (round, hints) => {
+      const blanks = $$(".letter", $$(".round")[round]);
+      hints.forEach((hint, i) => {
+        if (hint) {
+          blanks[i].classList.add("letter--hint-" + hint);
+        }
+      });
+    },
+  };
+}
+
+function generateKeyboard() {
+  keyboard.append(
+    ...KEYS.map((row) =>
+      dom(
+        "div",
+        {
+          class: "keyboard__row",
+        },
+        row.split("").map((key) =>
+          dom(
+            "button",
+            {
+              class: `key${PRETTY_KEYS[key] ? " key--pretty" : ""}`,
+              "data-key": key,
+            },
+            PRETTY_KEYS[key] || key
+          )
+        )
+      )
+    )
+  );
+  const keyListeners = new Set();
+  keyboard.addEventListener("click", (e) => {
+    e.preventDefault();
+    const key = e.target.getAttribute("data-key");
+    if (key) {
+      keyListeners.forEach((l) => l(key));
+    }
+  });
+  return {
+    on: (l) => keyListeners.add(l),
+    off: (l) => keyListeners.delete(l),
+    revealHint: (guess, hints) => {
+      hints.forEach((hint, i) => {
+        $(`[data-key="${guess[i]}"]`).classList.add("key--hint-" + hint);
+      });
+    },
+  };
+}
+
+function addtoshare(hints) {
+  var line = '';
+	var hint = "";
+  for (let index = 0; index < hints.length; index++) {
+    hint = hints[index];
+    if (hint === "correct") {
+      line = line + '🟩';
+    } else if (hint === "close") {
+      line = line + '🟨';
+    } else if (hint === "wrong") {
+      line = line + '⬜';
+    } else {
+      console.log("Uh oh.");
+    }
+  }
+  line = line + '\n';
+  return line;
+}
+
+function copytoshare(text) {
+  navigator.clipboard.writeText(text);
+  var button = document.getElementById("copybutton");
+  button.innerText = `Copied!`;
+	//still works after copying, but text won't change
+}
+
+function formatDate(date){
+  //mmm dd yyyy --> dd mmm yyyy as string
+  var str = date.toString().substring(4,15);
+  var formatted = "";
+  var day = str.substring(4,6);
+  var month = str.substring(0,3);
+  var year = str.substring(7,11);
+  formatted = day + " " + month + " " + year;
+  return formatted;
+}
+
+function updateSharebox(text){
+  var el = document.getElementById("sharebox");
+  var x = document.createElement("textarea");
+  x.innerHTML = text;
+  el.after(x);
+}
