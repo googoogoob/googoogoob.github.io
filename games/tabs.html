@@ -2,140 +2,124 @@
 <html lang="en-us">
 
 <head>
-  <base href="https://cdn.jsdelivr.net/gh/web-ports/tabs@main/">
-  <meta charset="utf-8">
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>Unity WebGL Player | TABS</title>
-  <style>
-    body {
-      background-color: black;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
+    <base href="https://cdn.jsdelivr.net/gh/googoogoob/tabs/">
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Totally Accurate Battle Simulator</title>
+    <style>
+        body {
+            margin: 0;
+            background: #050505;
+            color: #eee;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+        }
 
-    #gameContainer {
-      width: 100vw !important;
-      height: 100vh !important;
-    }
+        #u {
+            width: 100vw;
+            height: 100vh;
+        }
 
-    canvas {
-      width: 100% !important;
-      height: 100% !important;
-    }
+        #l {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+        }
 
-    #loading-text {
-      font-weight: bold;
-      background: linear-gradient(270deg,
-          #ff0000,
-          #ff7f00,
-          #ffff00,
-          #00ff00,
-          #0000ff,
-          #4b0082,
-          #8f00ff);
-      background-size: 400% 400%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: rainbow 3s ease infinite;
-    }
+        #f {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            cursor: pointer;
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid #444;
+            padding: 8px 16px;
+            border-radius: 4px;
+            z-index: 20;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
 
-    @keyframes rainbow {
-      0% {
-        background-position: 0% 50%;
-      }
-
-      50% {
-        background-position: 100% 50%;
-      }
-
-      100% {
-        background-position: 0% 50%;
-      }
-    }
-  </style>
+        #f:hover {
+            background: rgba(50, 50, 50, 0.9);
+        }
+    </style>
+    <script src="Build/UnityLoader.js"></script>
 </head>
 
 <body>
-  <div id="loading-text"
-    style="color: white; font-size: 48px; font-family: cursive; text-align: center; margin-top: 20px;"> LOADING...
-  </div>
-  <div id="gameContainer"></div>
-  <script src="Build/UnityLoader.js"></script>
-  <script>
-    var loadingText = document.querySelector("#loading-text");
-    let totalBytes = 0;
-    let loadedBytes = 0;
+    <div id="l">Loading assets... 0%</div>
+    <div id="f" onclick="u.SetFullscreen(1)">Fullscreen</div>
+    <div id="u"></div>
+    <script>
+        const base = "";
+        const dC = 78, wC = 3;
+        let u, n = 0, t = dC + wC, blobs = {};
+        const up = (v, m) => {
+            document.getElementById('l').innerText = m + "... " + Math.round(v * 100) + "%";
+        };
 
-    async function fetchWithProgress(url) {
-      const response = await fetch(url);
-      const reader = response.body.getReader();
-      let chunks = [];
-      let received = 0;
-      while (true) {
-        const {
-          done,
-          value
-        } = await reader.read();
-        if (done) break;
-        received += value.length;
-        loadedBytes += value.length;
-        chunks.push(value);
-        let mbDone = (loadedBytes / (1024 * 1024)).toFixed(2);
-        let mbTotal = '1746.00';
-        loadingText.textContent = `LOADING... ${mbDone} MB / ${mbTotal} MB`;
-      }
-      let fullBuffer = new Uint8Array(received);
-      let offset = 0;
-      for (let chunk of chunks) {
-        fullBuffer.set(chunk, offset);
-        offset += chunk.length;
-      }
-      return fullBuffer.buffer;
-    }
-
-    async function mergeFiles(fileParts, cacheKey) {
-      const cache = await caches.open("tabs-cache");
-      const cachedResponse = await cache.match(cacheKey);
-      if (cachedResponse) {
-        const blob = await cachedResponse.blob();
-        return URL.createObjectURL(blob);
-      }
-      const buffers = await Promise.all(
-        fileParts.map(part => fetchWithProgress(part))
-      );
-      const mergedBlob = new Blob(buffers);
-      const response = new Response(mergedBlob);
-      await cache.put(cacheKey, response);
-      return URL.createObjectURL(mergedBlob);
-    }
-
-    function getParts(file, start, end) {
-      let parts = [];
-      for (let i = start; i <= end; i++) {
-        parts.push(file + ".part" + i);
-      }
-      return parts;
-    }
-    (async () => {
-      const [dataUrl, wasmUrl, asmUrl] = await Promise.all([
-        mergeFiles(getParts("Build/tabs.data.unityweb", 1, 86), "tabs.data.unityweb"),
-        mergeFiles(getParts("Build/tabs.wasm.code.unityweb", 1, 3), "tabs.wasm.code.unityweb"),
-      ]);
-
-      const originalOpen = XMLHttpRequest.prototype.open;
-      XMLHttpRequest.prototype.open = function (method, url, ...rest) {
-        if (url.includes("tabs.data.unityweb")) {
-          url = dataUrl;
-        } else if (url.includes("tabs.wasm.code.unityweb")) {
-          url = wasmUrl;
+        // Generic fetch with retry
+        async function fetchWithRetry(url, options = {}, retries = 3, delay = 1000) {
+            for (let attempt = 0; attempt <= retries; attempt++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response;
+                } catch (err) {
+                    if (attempt === retries) throw err;
+                    await new Promise(res => setTimeout(res, delay * (attempt + 1)));
+                }
+            }
         }
-        return originalOpen.call(this, method, url, ...rest);
-      };
-      var unityInstance = UnityLoader.instantiate("gameContainer", "Build/tabs.json");
-      loadingText.remove();
-    })();
-  </script>
+
+        const ld = async (s, c) => {
+            const r = await Promise.all([...Array(c)].map(async (_, i) => {
+                const url = base + "Build/tabs." + s + (i < 10 ? "0" + i : i);
+                const x = await fetchWithRetry(url);
+                const a = await x.arrayBuffer();
+                n++;
+                up(n / t, "Loading assets");
+                return a;
+            }));
+            return new Blob(r).arrayBuffer();
+        };
+
+        const shim = () => {
+            const ox = XMLHttpRequest.prototype.open, sx = XMLHttpRequest.prototype.send;
+            XMLHttpRequest.prototype.open = function (m, url) { this._u = url; return ox.apply(this, arguments); };
+            XMLHttpRequest.prototype.send = function () {
+                const p = new URL(this._u, window.location.href).pathname;
+                for (const k in blobs) if (p.endsWith(k)) {
+                    setTimeout(() => {
+                        Object.defineProperty(this, 'status', { value: 200 });
+                        Object.defineProperty(this, 'readyState', { value: 4 });
+                        Object.defineProperty(this, 'response', { value: blobs[k] });
+                        this.dispatchEvent(new Event('load'));
+                    }, 1);
+                    return;
+                }
+                return sx.apply(this, arguments);
+            };
+        };
+
+        (async () => {
+            const [dB, wB] = await Promise.all([ld("data", dC), ld("wasm", wC)]);
+            blobs["tabs.data.unityweb"] = dB;
+            blobs["tabs.wasm.code.unityweb"] = wB;
+            shim();
+            u = UnityLoader.instantiate("u", base + "Build/tabs.json", {
+                onProgress: (inst, v) => {
+                    if (v < 1) up(v, "Initializing");
+                    else document.getElementById('l').style.display = 'none';
+                }
+            });
+        })();
+    </script>
 </body>
 
 </html>
