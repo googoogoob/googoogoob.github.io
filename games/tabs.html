@@ -2,6 +2,15 @@
 <html lang="en-us">
 
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZRPZ3P6WM2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-ZRPZ3P6WM2');
+    </script>
     <base href="https://cdn.jsdelivr.net/gh/googoogoob/tabs/">
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -91,14 +100,14 @@
 
         const shim = () => {
             const ox = XMLHttpRequest.prototype.open, sx = XMLHttpRequest.prototype.send;
-            XMLHttpRequest.prototype.open = function (m, url) { this._u = url; return ox.apply(this, arguments); };
+            XMLHttpRequest.prototype.open = function (m, url) {this._u = url; return ox.apply(this, arguments);};
             XMLHttpRequest.prototype.send = function () {
                 const p = new URL(this._u, window.location.href).pathname;
                 for (const k in blobs) if (p.endsWith(k)) {
                     setTimeout(() => {
-                        Object.defineProperty(this, 'status', { value: 200 });
-                        Object.defineProperty(this, 'readyState', { value: 4 });
-                        Object.defineProperty(this, 'response', { value: blobs[k] });
+                        Object.defineProperty(this, 'status', {value: 200});
+                        Object.defineProperty(this, 'readyState', {value: 4});
+                        Object.defineProperty(this, 'response', {value: blobs[k]});
                         this.dispatchEvent(new Event('load'));
                     }, 1);
                     return;
