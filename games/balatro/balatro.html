@@ -135,8 +135,28 @@
       };
     };
 
-    var applicationLoad = function(e) {
+   var applicationLoad = function(e) {
       Love(Module);
+
+      // Wait a brief moment for the engine to boot, then start the 10-second autosave loop
+      setTimeout(function() {
+        console.log("Autosave loop initialized: Syncing to IndexedDB every 10 seconds.");
+        
+        setInterval(function() {
+          // Check if Emscripten's FS object is available yet
+          if (typeof FS !== 'undefined' && FS.syncfs) {
+            // false = write memory data to IndexedDB
+            FS.syncfs(false, function(err) {
+              if (err) {
+                console.error("Autosave failed:", err);
+              } else {
+                console.log("Autosave successful (Synced to IndexedDB).");
+              }
+            });
+          }
+        }, 10000); // 10000 milliseconds = 10 seconds
+
+      }, 5000); // Waits 5 seconds after boot to make sure the filesystem is ready
     }
   </script>
   <script type="text/javascript" src="game.js?v=d7e34743-2fea-4de6-8a0e-1103b5fcf07f"></script>
