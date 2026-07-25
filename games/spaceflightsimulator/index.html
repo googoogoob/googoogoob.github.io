@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZRPZ3P6WM2"></script>
+
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZRPZ3P6WM2"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -9,149 +10,175 @@
 
   gtag('config', 'G-ZRPZ3P6WM2');
 </script>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | Spaceflight Simulator</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
-  </head>
-  <body>
-    <div id="loading-text"
-    style="color: white; font-size: 48px; font-family: cursive; text-align: center; margin-top: 20px;"> LOADING...
-  </div>
-    <div id="unity-container">
-      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
-        </div>
-      </div>
-      <div id="unity-warning"> </div>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Unity WebGL Player | Spaceflight Simulator</title>
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    /* Cover the entire screen with the loading overlay */
+    #loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #222222;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: sans-serif;
+      z-index: 999;
+      transition: opacity 0.5s ease;
+    }
+    #loading-title {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    #loading-bar-track {
+      width: 300px;
+      height: 2px;
+      background: #444444;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    #loading-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: #ffffff;
+      transition: width 0.2s ease;
+    }
+    #loading-mb {
+      font-size: 14px;
+      color: #aaaaaa;
+    }
+  </style>
+</head>
+
+<body style="text-align: center; padding: 0; border: 0; margin: 0;">
+  <div id="loading-overlay">
+    <div id="loading-title">SFS Web Port</div>
+    <div id="loading-bar-track">
+      <div id="loading-bar-fill"></div>
     </div>
-    <script>
+    <div id="loading-mb">Initializing…</div>
+  </div>
+  <canvas id="unity-canvas" width=960 height=600 tabindex="-1"
+    style="width: 100%; height: 100%; background: #CCCCCC"></canvas>
+  <script>
+    let totalDownloaded = 0;
+    // Rough estimate of total combined size for part files to calculate percentage progress
+    const estimatedTotalSize = 150 * 1024 * 1024; 
+    const _nativeFetch = window.fetch.bind(window);
 
-var loadingText = document.querySelector("#loading-text");
-    let totalBytes = 0;
-    let loadedBytes = 0;
+    window.fetch = async function (input, init) {
+      const response = await _nativeFetch(input, init);
+      const url = typeof input === 'string' ? input : input.url;
 
-    async function fetchWithProgress(url) {
-      const response = await fetch(url);
-      const reader = response.body.getReader();
-      let chunks = [];
-      let received = 0;
-      while (true) {
-        const {
-          done,
-          value
-        } = await reader.read();
-        if (done) break;
-        received += value.length;
-        loadedBytes += value.length;
-        chunks.push(value);
-        let mbDone = (loadedBytes / (1024 * 1024)).toFixed(2);
-        let mbTotal = '87.82';
-        loadingText.textContent = `LOADING... ${mbDone} MB / ${mbTotal} MB`;
+      if (/\.(data|wasm|js)(\.part\d+)?(\.gz|\.br)?(\?|$)/i.test(url)) {
+        const cloned = response.clone();
+        const reader = cloned.body.getReader();
+        (async () => {
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              totalDownloaded += value.byteLength;
+              updateLoadingProgress();
+            }
+          } catch (_) { }
+        })();
       }
-      let fullBuffer = new Uint8Array(received);
-      let offset = 0;
-      for (let chunk of chunks) {
-        fullBuffer.set(chunk, offset);
-        offset += chunk.length;
-      }
-      return fullBuffer.buffer;
+      return response;
+    };
+
+    function updateLoadingProgress() {
+      const mb = (totalDownloaded / (1024 * 1024)).toFixed(1);
+      document.getElementById('loading-mb').textContent = mb + ' MB downloaded';
+      
+      // Update visual loading bar percentage
+      const percentage = Math.min((totalDownloaded / estimatedTotalSize) * 200, 100);
+      document.getElementById('loading-bar-fill').style.width = percentage + '%';
+    }
+  </script>
+  <script src="Build/sfsPort.loader.js"></script>
+  <script>
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      var meta = document.createElement('meta');
+      meta.name = 'viewport';
+      meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+      document.getElementsByTagName('head')[0].appendChild(meta);
+
+      var canvas = document.querySelector("#unity-canvas");
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+      canvas.style.position = "fixed";
+
+      document.body.style.textAlign = "left";
     }
 
-    async function mergeFiles(fileParts, cacheKey) {
-      const cache = await caches.open("gash-cache");
-      const cachedResponse = await cache.match(cacheKey);
-      if (cachedResponse) {
-        const blob = await cachedResponse.blob();
-        return URL.createObjectURL(blob);
-      }
-      const buffers = await Promise.all(
-        fileParts.map(part => fetchWithProgress(part))
-      );
-      const mergedBlob = new Blob(buffers);
-      const response = new Response(mergedBlob);
-      await cache.put(cacheKey, response);
-      return URL.createObjectURL(mergedBlob);
+    function mergeFiles(fileParts) {
+      return new Promise((resolve, reject) => {
+        let buffers = [];
+        function fetchPart(index) {
+          if (index >= fileParts.length) {
+            resolve(URL.createObjectURL(new Blob(buffers)));
+            return;
+          }
+          fetch(fileParts[index])
+            .then(r => r.arrayBuffer())
+            .then(data => { buffers.push(data); fetchPart(index + 1); })
+            .catch(reject);
+        }
+        fetchPart(0);
+      });
     }
 
     function getParts(file, start, end) {
       let parts = [];
-      for (let i = start; i <= end; i++) {
-        parts.push(file + ".part" + i);
-      }
+      for (let i = start; i <= end; i++) parts.push(file + ".part" + i);
       return parts;
     }
+
     (async () => {
-      const [dataUrl, wasmUrl] = await Promise.all([
-        mergeFiles(getParts("Build/sfsim.data", 1, 3), "sfsim.data"),
-        mergeFiles(getParts("Build/sfsim.wasm", 1, 3), "sfsim.wasm"),
-      ]);
-      var container = document.querySelector("#unity-container");
-      var canvas = document.querySelector("#unity-canvas");
-      var loadingBar = document.querySelector("#unity-loading-bar");
-      var progressBarFull = document.querySelector("#unity-progress-bar-full");
-      var warningBanner = document.querySelector("#unity-warning");
+      try {
+        const dataParts = getParts("Build/sfsPort.data", 1, 2);
+        const codeParts = getParts("Build/sfsPort.wasm", 1, 2);
 
-      function unityShowBanner(msg, type) {
+        const [mergedDataUrl, mergedCodeUrl] = await Promise.all([
+          mergeFiles(dataParts),
+          mergeFiles(codeParts)
+        ]);
 
-      }
-
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/sfsim.loader.js";
-      var config = {
-        arguments: [],
-        dataUrl: dataUrl,
-        frameworkUrl: buildUrl + "/sfsim.framework.js",
-        codeUrl: wasmUrl,
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "Stef Morojna",
-        productName: "Spaceflight Simulator",
-        productVersion: "1.6.00.16",
-        showBanner: unityShowBanner,
-        // errorHandler: function(err, url, line) {
-        //    alert("error " + err + " occurred at line " + line);
-        //    // Return 'true' if you handled this error and don't want Unity
-        //    // to process it further, 'false' otherwise.
-        //    return true;
-        // },
-      };
-
-      // By default Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
-
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-      }
-
-
-      loadingBar.style.display = "block";
-
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
+        createUnityInstance(document.querySelector("#unity-canvas"), {
+          dataUrl: mergedDataUrl,
+          frameworkUrl: "Build/sfsPort.framework.js",
+          codeUrl: mergedCodeUrl,
+          streamingAssetsUrl: "StreamingAssets",
+          companyName: "Stef Morojna",
+          productName: "Spaceflight Simulator",
+          productVersion: "1.5.9.8",
+          devicePixelRatio: 2,
         }).then((unityInstance) => {
-          loadingBar.style.display = "none";
-          loadingText.remove();
-        }).catch((message) => {
-          alert(message);
+          // Hide and fade out the loading overlay when initialization completes
+          const loader = document.getElementById('loading-overlay');
+          loader.style.opacity = '0';
+          setTimeout(() => {
+            loader.style.display = 'none';
+          }, 500);
         });
-      };
-      document.body.appendChild(script);
+      } catch (error) {
+        console.error("An error occurred:", error);
+        document.getElementById('loading-mb').textContent = "Error loading game.";
+      }
     })();
-    </script>
-  </body>
+  </script>
+</body>
+
 </html>

@@ -1,0 +1,12 @@
+{
+"companyName": "Landfall",
+"productName": "Airships",
+"dataUrl": "airship1.data.unityweb",
+"wasmCodeUrl": "airship1.wasm.code.unityweb",
+"wasmFrameworkUrl": "airship1.wasm.framework.unityweb",
+"TOTAL_MEMORY": 67108864,
+"graphicsAPI": ["WebGL 2.0", "WebGL 1.0"],
+"webglContextAttributes": {"preserveDrawingBuffer": false},
+"splashScreenStyle": "Dark",
+"backgroundColor": "#000000"
+}

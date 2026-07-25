@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <base href="https://cdn.jsdelivr.net/gh/thecheetoman/smfps@main/">
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | Super Mario 64 FPS</title>
+    <script src="Build/UnityLoader.js"></script>
+    <script>
+      const UnityLoaderChunkMap = {
+        "smfps.data.unityweb": 4,
+        "smfps.wasm.code.unityweb": 3
+      };
+
+      function fetchUnityChunkedFile(url) {
+        const fileName = url.split("/").pop();
+        const count = UnityLoaderChunkMap[fileName];
+        if (!count) {
+          return Promise.resolve(null);
+        }
+
+        const requests = [];
+        for (let i = 1; i < count; i++) {
+          requests.push(fetch(`${url}.part${i}`).then(response => {
+            if (!response.ok) {
+              throw new Error(`Failed to load ${url}.part${i}: ${response.status}`);
+            }
+            return response.arrayBuffer();
+          }));
+        }
+
+        return Promise.all(requests).then(chunks => {
+          let totalLength = 0;
+          const views = chunks.map(chunk => {
+            totalLength += chunk.byteLength;
+            return new Uint8Array(chunk);
+          });
+
+          const merged = new Uint8Array(totalLength);
+          let offset = 0;
+          for (const view of views) {
+            merged.set(view, offset);
+            offset += view.byteLength;
+          }
+          return merged.buffer;
+        });
+      }
+
+      const originalUnityDownloadJob = UnityLoader.downloadJob;
+      UnityLoader.downloadJob = function(e, t) {
+        const url = t.parameters.url;
+        const fileName = url.split("/").pop();
+        const count = UnityLoaderChunkMap[fileName];
+        if (!count) {
+          return originalUnityDownloadJob(e, t);
+        }
+
+        fetchUnityChunkedFile(url).then(buffer => {
+          if (t.parameters.onprogress) {
+            t.parameters.onprogress({ loaded: buffer.byteLength, total: buffer.byteLength });
+          }
+          if (t.parameters.onload) {
+            t.parameters.onload({ target: { response: buffer } });
+          }
+          UnityLoader.Compression.decompress(new Uint8Array(buffer), function(decompressed) {
+            t.complete(decompressed);
+          });
+        }).catch(error => {
+          console.error("Unity chunked file load failed:", url, error);
+          if (t.parameters.onerror) {
+            t.parameters.onerror(error);
+          }
+        });
+      };
+    </script>
+    <script>
+      UnityLoader.instantiate("unityContainer", "Build/smfps.json");
+    </script>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: #000;
+        overflow: hidden;
+      }
+
+      #unityContainer {
+        width: 100%;
+        height: 100%;
+        min-height: 100%;
+        margin: 0;
+        border: none;
+        background: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="unityContainer"></div>
+  </body>
+</html>
