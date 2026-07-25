@@ -317,54 +317,63 @@ h1.selected {
     width: 13.5vw;
     height: 9.3vw;
     cursor: pointer;
-    transition: scale 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    transition: scale 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease-in-out;
+    background-size: 6vw;
+    background-position: center center;
+    background-repeat: no-repeat;
 }
 
 .rectangle:hover {
-    scale: 1.1;
-    box-shadow: black 0 0 20px;
+    scale: 1.05;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(255,255,255,0.05);
 }
 
 .rectangle.one {background: url(../assets/images/icons/open-tray.png) center center / 6vw no-repeat #008a00;}
-.rectangle.one:hover {background: url(../assets/images/icons/open-tray.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.two {background: url(../assets/images/icons/my-pins.png) center center / 6vw no-repeat #008a00;}
-.rectangle.two:hover {background: url(../assets/images/icons/my-pins.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.three {background: url(../assets/images/icons/recent.png) center center / 6vw no-repeat #008a00;}
-.rectangle.three:hover {background: url(../assets/images/icons/recent.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.four {background: url(../assets/images/icons/friends.png) center center / 6vw no-repeat #008a00;}
-.rectangle.four:hover {background: url(../assets/images/icons/friends.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.five {background: url(../assets/images/icons/placeholder.png) center center / 6vw no-repeat #008a00;}
-.rectangle.five:hover {background: url(../assets/images/icons/placeholder.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.six {background: url(../assets/images/icons/sign-out.png) center center / 6vw no-repeat #008a00;}
-.rectangle.six:hover {background: url(../assets/images/icons/sign-out.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.seven {background: url(../assets/images/icons/games.png) center center / 6vw no-repeat #008a00;}
-.rectangle.seven:hover {background: url(../assets/images/icons/games.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.eight {background: url(../assets/images/icons/store.png) center center / 6vw no-repeat #008a00;}
-.rectangle.eight:hover {background: url(../assets/images/icons/store.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.nine {background: url(../assets/images/icons/search.png) center center / 6vw no-repeat #008a00;}
-.rectangle.nine:hover {background: url(../assets/images/icons/search.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.ten {background: url(../assets/images/icons/tiles.png) center center / 6vw no-repeat #008a00;}
-.rectangle.ten:hover {background: url(../assets/images/icons/tiles.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.eleven {background: url(../assets/images/icons/store.png) center center / 6vw no-repeat #008a00;}
-.rectangle.eleven:hover {background: url(../assets/images/icons/store.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.twelve {background: url(../assets/images/icons/search.png) center center / 6vw no-repeat #008a00;}
-.rectangle.twelve:hover {background: url(../assets/images/icons/search.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.thirteen {background: url(../assets/images/icons/xbox.png) center center / 6vw no-repeat #008a00;}
-.rectangle.thirteen:hover {background: url(../assets/images/icons/xbox.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.fourteen {background: url(../assets/images/icons/placeholder.png) center center / 6vw no-repeat #008a00;}
-.rectangle.fourteen:hover {background: url(../assets/images/icons/placeholder.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.fifteen {background: url(../assets/images/icons/tiles.png) center center / 6vw no-repeat #008a00;}
-.rectangle.fifteen:hover {background: url(../assets/images/icons/tiles.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.sixteen {background: url(../assets/images/icons/xbox.png) center center / 6vw no-repeat #008a00;}
-.rectangle.sixteen:hover {background: url(../assets/images/icons/xbox.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.seventeen {background: url(../assets/images/icons/search.png) center center / 6vw no-repeat #008a00;}
-.rectangle.seventeen:hover {background: url(../assets/images/icons/search.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.eighteen {background: url(../assets/images/icons/tiles.png) center center / 6vw no-repeat #008a00;}
-.rectangle.eighteen:hover {background: url(../assets/images/icons/tiles.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.nineteen {background: url(../assets/images/icons/store.png) center center / 6vw no-repeat #008a00;}
-.rectangle.nineteen:hover {background: url(../assets/images/icons/store.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .rectangle.twenty {background: url(../assets/images/icons/search.png) center center / 6vw no-repeat #008a00;}
-.rectangle.twenty:hover {background: url(../assets/images/icons/search.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
+
+.square {
+    display: flex;
+    align-items: flex-end;
+    width: 13.5vw;
+    height: 13.5vw;
+    cursor: pointer;
+    transition: scale 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease-in-out;
+    background-size: 6vw;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.square:hover {
+    scale: 1.03;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.square.one {background: url(../assets/images/icons/system.png) center center / 6vw no-repeat #008a00;}
+.square.two {background: url(../assets/images/icons/profile.png) center center / 6vw no-repeat #008a00;}
+.square.three {background: url(../assets/images/icons/preferences.png) center center / 6vw no-repeat #008a00;}
+.square.four {background: url(../assets/images/icons/kinect.png) center center / 6vw no-repeat #008a00;}
+.square.five {background: url(../assets/images/icons/placeholder.png) center center / 6vw no-repeat #008a00;}
+.square.six {background: url(../assets/images/icons/placeholder.png) center center / 6vw no-repeat #008a00;}
+.square.seven {background: url(../assets/images/icons/family.png) center center / 6vw no-repeat #008a00;}
+.square.eight {background: url(../assets/images/icons/sign-out.png) center center / 6vw no-repeat #008a00;}
 
 .square {
     display: flex;
@@ -389,13 +398,9 @@ h1.selected {
 .square.four {background: url(../assets/images/icons/kinect.png) center center / 6vw no-repeat #008a00;}
 .square.four:hover {background: url(../assets/images/icons/kinect.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .square.five {background: url(../assets/images/icons/placeholder.png) center center / 6vw no-repeat #008a00;}
-.square.five:hover {background: url(../assets/images/icons/placeholder.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .square.six {background: url(../assets/images/icons/placeholder.png) center center / 6vw no-repeat #008a00;}
-.square.six:hover {background: url(../assets/images/icons/placeholder.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .square.seven {background: url(../assets/images/icons/family.png) center center / 6vw no-repeat #008a00;}
-.square.seven:hover {background: url(../assets/images/icons/family.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 .square.eight {background: url(../assets/images/icons/sign-out.png) center center / 6vw no-repeat #008a00;}
-.square.eight:hover {background: url(../assets/images/icons/sign-out.png) center center / 6vw no-repeat, linear-gradient(to left top, #008a00, #58a658);}
 
 .tips {
     position: absolute;
