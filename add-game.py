@@ -74,18 +74,18 @@ def update_games_index(game_name: str) -> bool:
     
     # Find the position to insert the new game in the navigation
     # Look for the closing </div> of the previous game, or the end of the row
-    nav_pos = content.find("  </div>\n  <a href=\"")
+    nav_pos = content.find("  </div>\\n  <a href=\\\"")
     
     if nav_pos == -1:
         # Alternative pattern check
-        nav_pos = content.find("  <a href=\"")
+        nav_pos = content.find("  <a href=\\\"")
         if nav_pos == -1:
             print(f"Error: Could not find game link pattern in {index_path}.", file=sys.stderr)
             return False
         # Insert after the opening tag
         nav_pos += len('  <a href="')
     else:
-        nav_pos += len("  </div>\n  <a href=")
+        nav_pos += len("  </div>\\n  <a href=")
     
     # Create the new game entry (similar to existing games)
     new_game_entry = f'''  <a href="{game_name}/" target="_blank">{game_name}</a>
@@ -94,8 +94,8 @@ def update_games_index(game_name: str) -> bool:
     # Insert the new game at the top (replace the first href line)
     if nav_pos > 0 and nav_pos < len(content):
         # Find the start of the line with the first href
-        line_start = content.rfind('\n', 0, nav_pos) + 1
-        line_end = content.find('\n', nav_pos)
+        line_start = content.rfind('\\n', 0, nav_pos) + 1
+        line_end = content.find('\\n', nav_pos)
         if line_end == -1:
             line_end = len(content)
         
@@ -104,11 +104,11 @@ def update_games_index(game_name: str) -> bool:
         index_path.write_text(new_content, encoding="utf-8")
     else:
         # Fallback: just add at the beginning after the opening div
-        first_div_end = content.find("    </div> \n    <a href=\"")
+        first_div_end = content.find("    </div> \\n    <a href=\\\"")
         if first_div_end != -1:
-            first_div_end += len("    </div> \n    <a href=")
-            line_start = content.rfind('\n', 0, first_div_end) + 1
-            line_end = content.find('\n', first_div_end)
+            first_div_end += len("    </div> \\n    <a href=")
+            line_start = content.rfind('\\n', 0, first_div_end) + 1
+            line_end = content.find('\\n', first_div_end)
             if line_end == -1:
                 line_end = len(content)
             
@@ -118,7 +118,7 @@ def update_games_index(game_name: str) -> bool:
             print(f"Warning: Could not find proper position to add game to navigation.", file=sys.stderr)
             return False
     
-    print(f"✓ Added '{game_name}' to the games index navigation (top of list)")
+    print(f"PASS Added '{game_name}' to the games index navigation (top of list)")
     return True
 
 
@@ -191,7 +191,7 @@ def update_game_library(game_name: str) -> bool:
     # Write back
     index_path.write_text(new_content, encoding="utf-8")
     
-    print(f"✓ Added '{game_name}' to the game library overlay")
+    print(f"PASS Added '{game_name}' to the game library overlay")
     return True
 
 
@@ -228,7 +228,7 @@ def main():
     redirector_content = create_redirector(game_name)
     redirector_path.write_text(redirector_content, encoding="utf-8")
     
-    print(f"✓ Created redirector: {redirector_path}")
+    print(f"PASS Created redirector: {redirector_path}")
     
     # Copy assets if source directory is provided
     if source_dir:
@@ -240,11 +240,11 @@ def main():
             # If a specific file is provided, copy it to the game directory root
             target_file = game_dir / source_dir.name
             shutil.copy2(source_dir, target_file)
-            print(f"✓ Copied file: {source_dir.name}")
+            print(f"PASS Copied file: {source_dir.name}")
         else:
             # If a directory is provided, copy all contents
             copied = copy_game_assets(source_dir, game_dir)
-            print(f"✓ Copied {len(copied)} files from {source_dir}")
+            print(f"PASS Copied {len(copied)} files from {source_dir}")
             if len(copied) <= 10:
                 for f in copied:
                     print(f"  - {f}")
@@ -258,7 +258,7 @@ def main():
     library_updated = update_game_library(game_name)
     
     if nav_updated or library_updated:
-        print(f"\n🎮 Game '{game_name}' setup complete!")
+        print(f"\nPASS Game '{game_name}' setup complete!")
         print(f"  - Redirector: {redirector_path}")
         print(f"  - Game directory: {game_dir}")
         if nav_updated:
@@ -267,10 +267,16 @@ def main():
             print(f"  - Added to: games/index.html (game library)")
         print("\nDrag other game files into the game directory or remove unnecessary files.")
     else:
-        print(f"⚠ Warning: Could not fully update game references.")
+        print(f"WARN Warning: Could not fully update game references.")
         print(f"  - Redirector: {redirector_path}")
         print(f"  - Game directory: {game_dir}")
 
 
 if __name__ == "__main__":
     main()
+i m p o r t   s h u t i l 
+ f r o m   p a t h l i b   i m p o r t   P a t h 
+ i m p o r t   a r g p a r s e 
+ i m p o r t   s y s 
+  
+ 
