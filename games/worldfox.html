@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <base href="https://cdn.jsdelivr.net/gh/thecheetoman/foxWorld/">
+    <title>Unity WebGL Player | WorldBox</title>
+    <style>
+      #loading-overlay {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #0d0d0d;
+        z-index: 9999;
+        font-family: 'Verdana', monospace;
+        color: #e0e0e0;
+        gap: 18px;
+        transition: opacity 0.6s ease;
+      }
+
+      #loading-overlay.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      #loading-bar-track {
+        width: 320px;
+        height: 6px;
+        background: #222;
+      }
+
+      #loading-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: #fff;
+        transition: width 0.3s;
+      }
+      html, body {
+        height: 100%;
+        margin: 0;
+      }
+
+      #unity-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body style="text-align: center; padding: 0; border: 0; margin: 0;">
+    <div id="loading-overlay">
+      <div id="loading-title">WorldBox</div>
+      <div id="loading-bar-track">
+        <div id="loading-bar-fill"></div>
+      </div>
+      <div id="loading-mb">Initializing…</div>
+    </div>
+    <canvas id="unity-canvas" width=960 height=600 tabindex="-1"
+      style="width: 100%; height: 100%; background: #000000"></canvas>
+    <script>
+      let totalDownloaded = 0;
+      const _nativeFetch = window.fetch.bind(window);
+
+      window.fetch = async function (input, init) {
+        const response = await _nativeFetch(input, init);
+        const url = typeof input === 'string' ? input : input.url;
+
+        if (/\.(data|wasm|js)(\.gz|\.br)?(\?|$)/i.test(url) || /\.part\d+$/i.test(url)) {
+          try {
+            const cloned = response.clone();
+            const reader = cloned.body.getReader();
+            (async () => {
+              try {
+                while (true) {
+                  const {done, value} = await reader.read();
+                  if (done) break;
+                  totalDownloaded += value.byteLength;
+                  updateMbLabel();
+                }
+              } catch (_) { }
+            })();
+          } catch (_) { }
+        }
+        return response;
+      };
+
+      function updateMbLabel() {
+        const mb = (totalDownloaded / (1024 * 1024)).toFixed(1);
+        document.getElementById('loading-mb').textContent = mb + ' MB downloaded';
+      }
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        var canvas = document.querySelector("#unity-canvas");
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        canvas.style.position = "fixed";
+        document.body.style.textAlign = "left";
+      }
+
+      function mergeParts(base) {
+        return new Promise(async (resolve, reject) => {
+          let buffers = [];
+          for (let i = 1; i < 1000; i++) {
+            const partUrl = base + ".part" + i;
+            try {
+              const r = await fetch(partUrl);
+              if (!r.ok) {
+                if (i === 1) { // no parts found, reject
+                  reject('No parts found for ' + base);
+                  return;
+                }
+                break;
+              }
+              const data = await r.arrayBuffer();
+              buffers.push(data);
+            } catch (e) {
+              if (i === 1) { reject(e); return; }
+              break;
+            }
+          }
+          resolve(URL.createObjectURL(new Blob(buffers)));
+        });
+      }
+    </script>
+    <script src="Build/foxWorld.loader.js"></script>
+    <script>
+      const overlay = document.getElementById('loading-overlay');
+      const overlayBar = document.getElementById('loading-bar-fill');
+
+      Promise.all([
+        mergeParts('Build/foxWorld.data'),
+        mergeParts('Build/foxWorld.wasm')
+      ]).then(([dataUrl, wasmUrl]) => {
+        createUnityInstance(document.querySelector('#unity-canvas'), {
+          dataUrl: dataUrl,
+          frameworkUrl: 'Build/foxWorld.framework.js',
+          codeUrl: wasmUrl,
+          streamingAssetsUrl: 'StreamingAssets',
+          companyName: 'mkarpenko',
+          productName: 'WorldBox',
+          productVersion: '0.51.2'
+        }, (progress) => {
+          overlayBar.style.width = (progress * 100) + '%';
+        }).then(() => {
+          overlay.classList.add('hidden');
+          setTimeout(() => overlay.remove(), 700);
+        }).catch((message) => { alert(message); });
+      }).catch((err) => { alert('Merging error: ' + err); });
+    </script>
+  </body>
+</html>
