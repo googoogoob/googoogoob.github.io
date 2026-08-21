@@ -1,9 +1,9 @@
 {
 "companyName": "Landfall",
 "productName": "Airships 2",
-"dataUrl": "airship.data.unityweb",
-"wasmCodeUrl": "airship.wasm.code.unityweb",
-"wasmFrameworkUrl": "airship.wasm.framework.unityweb",
+"dataUrl": "airship2.data.unityweb",
+"wasmCodeUrl": "airship2.wasm.code.unityweb",
+"wasmFrameworkUrl": "airship2.wasm.framework.unityweb",
 "TOTAL_MEMORY": 134217728,
 "graphicsAPI": ["WebGL 2.0", "WebGL 1.0"],
 "webglContextAttributes": {"preserveDrawingBuffer": false},
